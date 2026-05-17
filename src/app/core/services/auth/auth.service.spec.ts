@@ -19,36 +19,32 @@ describe('AuthService', () => {
       id: 'user-id',
       email: 'user@auronix.com',
       name: 'Usuário',
-      balance: 15000,
       createdAt: '2026-03-29T00:00:00.000Z',
-      updatedAt: '2026-03-29T00:00:00.000Z',
     });
 
     expect(service.data()).toEqual({
       id: 'user-id',
       email: 'user@auronix.com',
       name: 'Usuário',
-      balance: 15000,
       createdAt: '2026-03-29T00:00:00.000Z',
-      updatedAt: '2026-03-29T00:00:00.000Z',
     });
     expect(service.isLoggedIn()).toBe(true);
   });
 
-  it('updates only the balance when a session exists', () => {
-    service.update({
-      id: 'user-id',
-      email: 'user@auronix.com',
-      name: 'Usuário',
+  it('stores the current account and exposes the balance', () => {
+    service.updateAccount({
+      id: 'account-id',
       balance: 15000,
-      createdAt: '2026-03-29T00:00:00.000Z',
-      updatedAt: '2026-03-29T00:00:00.000Z',
+      user: {
+        id: 'user-id',
+        email: 'user@auronix.com',
+        name: 'Usuário',
+        createdAt: '2026-03-29T00:00:00.000Z',
+      },
     });
 
-    service.updateBalance(9900);
-
-    expect(service.data()?.balance).toBe(9900);
-    expect(service.data()?.name).toBe('Usuário');
+    expect(service.account()?.id).toBe('account-id');
+    expect(service.balance()).toBe(15000);
   });
 
   it('clears the current session', () => {
@@ -56,14 +52,23 @@ describe('AuthService', () => {
       id: 'user-id',
       email: 'user@auronix.com',
       name: 'Usuário',
-      balance: 15000,
       createdAt: '2026-03-29T00:00:00.000Z',
-      updatedAt: '2026-03-29T00:00:00.000Z',
+    });
+    service.updateAccount({
+      id: 'account-id',
+      balance: 15000,
+      user: {
+        id: 'user-id',
+        email: 'user@auronix.com',
+        name: 'Usuário',
+        createdAt: '2026-03-29T00:00:00.000Z',
+      },
     });
 
     service.clear();
 
     expect(service.data()).toBeNull();
+    expect(service.account()).toBeNull();
     expect(service.isLoggedIn()).toBe(false);
   });
 });

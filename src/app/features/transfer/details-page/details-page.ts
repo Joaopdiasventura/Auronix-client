@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { TransferStatus } from '../../../core/enums/transfer/transfer-status.enum';
 import { Transfer } from '../../../core/models/transfer';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
@@ -10,14 +9,14 @@ import { PageHeader } from '../../../shared/components/ui/page-header/page-heade
 import { Skeleton } from '../../../shared/components/ui/skeleton/skeleton';
 import { SkeletonReadonlyGrid } from '../../../shared/components/ui/skeleton/skeleton-readonly-grid';
 import { SkeletonTimeline } from '../../../shared/components/ui/skeleton/skeleton-timeline';
-import { StatusChip } from '../../../shared/components/ui/status-chip/status-chip';
 import { TimelineStep } from '../../../shared/view-models/ui';
 import { formatCurrency } from '../../../shared/utils/format-currency';
 import { formatDateTime } from '../../../shared/utils/format-date-time';
+import { httpErrorMessage } from '../../../shared/utils/http-error-message';
 
 @Component({
   selector: 'app-transfer-details-page',
-  imports: [PageHeader, RouterLink, Skeleton, SkeletonReadonlyGrid, SkeletonTimeline, StatusChip],
+  imports: [PageHeader, RouterLink, Skeleton, SkeletonReadonlyGrid, SkeletonTimeline],
   templateUrl: './details-page.html',
   styleUrl: './details-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,7 +36,7 @@ export class TransferDetailsPage {
     if (!transfer) return '';
 
     const sign = this.isOutgoingTransfer(transfer) ? '- ' : '+ ';
-    return sign + formatCurrency(transfer.value);
+    return sign + formatCurrency(transfer.amount);
   });
   protected readonly shouldShowSkeleton = computed(
     () => this.isLoading() && this.transfer() == null,
@@ -48,31 +47,20 @@ export class TransferDetailsPage {
     const transfer = this.transfer();
     if (!transfer) return [];
 
-    const completedAt = transfer.completedAt;
-
     return [
       {
-        description: 'Transferência registrada e vinculada à cobrança de origem.',
-        isCurrent: !completedAt,
-        label: 'Registro inicial',
+        description: 'Transferência registrada no livro da conta.',
+        isCurrent: false,
+        label: 'Registro',
         timestampLabel: this.formatDate(transfer.createdAt),
         tone: 'info',
       },
       {
-        description: completedAt
-          ? 'Liquidação concluída e refletida no saldo da conta.'
-          : transfer.status == TransferStatus.Failed
-            ? 'A operação falhou e não alterou o saldo final da conta.'
-            : 'A operação segue em processamento ou validação.',
-        isCurrent: !!completedAt || transfer.status == TransferStatus.Failed,
-        label: transfer.status == TransferStatus.Failed ? 'Falha operacional' : 'Liquidação final',
-        timestampLabel: this.formatDate(completedAt || transfer.updatedAt),
-        tone:
-          transfer.status == TransferStatus.Completed
-            ? 'success'
-            : transfer.status == TransferStatus.Failed
-              ? 'danger'
-              : 'neutral',
+        description: 'Liquidação concluída e refletida nos saldos das contas envolvidas.',
+        isCurrent: true,
+        label: 'Liquidação',
+        timestampLabel: this.formatDate(transfer.createdAt),
+        tone: 'success',
       },
     ];
   });
@@ -84,7 +72,7 @@ export class TransferDetailsPage {
       .connect()
       .pipe(takeUntilDestroyed())
       .subscribe((event) => {
-        if (event.data.transferId != this.transferId) return;
+        if (event.data.transactionId != this.transferId) return;
         this.loadTransfer(false);
       });
   }
@@ -94,8 +82,12 @@ export class TransferDetailsPage {
     return formatDateTime(value);
   }
 
+  protected formatMoney(value: number): string {
+    return formatCurrency(value);
+  }
+
   protected isOutgoingTransfer(transfer: Transfer): boolean {
-    return transfer.payer.id == this.authService.data()?.id;
+    return transfer.payer.id == this.authService.account()?.id;
   }
 
   protected resolveAmountTone(): 'danger' | 'success' {
@@ -109,19 +101,7 @@ export class TransferDetailsPage {
   }
 
   protected resolveDescription(transfer: Transfer): string {
-    return transfer.description?.trim() || 'Sem descrição informada';
-  }
-
-  protected statusLabel(status: TransferStatus): string {
-    if (status == TransferStatus.Completed) return 'Concluída';
-    if (status == TransferStatus.Failed) return 'Falhou';
-    return 'Pendente';
-  }
-
-  protected statusTone(status: TransferStatus): 'danger' | 'success' | 'warning' {
-    if (status == TransferStatus.Completed) return 'success';
-    if (status == TransferStatus.Failed) return 'danger';
-    return 'warning';
+    return this.isOutgoingTransfer(transfer) ? 'Transferência enviada' : 'Transferência recebida';
   }
 
   private loadTransfer(showLoading = true): void {
@@ -134,7 +114,7 @@ export class TransferDetailsPage {
         this.isLoading.set(false);
       },
       error: ({ error }) => {
-        this.errorMessage.set(error.message || 'Não foi possível carregar esta transferência');
+        this.errorMessage.set(httpErrorMessage(error, 'Não foi possível carregar esta transferência'));
         this.isLoading.set(false);
       },
     });

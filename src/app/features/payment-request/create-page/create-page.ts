@@ -6,6 +6,7 @@ import { PaymentRequestService } from '../../../core/services/payment-request/pa
 import { CustomInput } from '../../../shared/components/ui/custom-input/custom-input';
 import { PageHeader } from '../../../shared/components/ui/page-header/page-header';
 import { formatCurrency } from '../../../shared/utils/format-currency';
+import { httpErrorMessage } from '../../../shared/utils/http-error-message';
 import { parseMoneyInput } from '../../../shared/utils/parse-money-input';
 
 interface CreatePaymentRequestFormValue {
@@ -78,7 +79,7 @@ export class PaymentRequestCreatePage {
         this.isLoading.set(false);
       },
       error: ({ error }) => {
-        this.errorMessage.set(error.message || 'Não foi possível criar a cobrança');
+        this.errorMessage.set(httpErrorMessage(error, 'Não foi possível criar a cobrança'));
         this.isLoading.set(false);
       },
     });

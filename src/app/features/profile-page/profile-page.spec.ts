@@ -20,15 +20,25 @@ describe('ProfilePage', () => {
 
   const authService = {
     clear: vi.fn(),
+    account: signal({
+      id: 'account-id',
+      balance: 125000,
+      user: {
+        id: 'user-id',
+        email: 'joao@auronix.com',
+        name: 'Joao',
+        createdAt: '2026-03-29T00:00:00.000Z',
+      },
+    }),
+    balance: vi.fn(() => authService.account()?.balance ?? 0),
     data: signal({
       id: 'user-id',
       email: 'joao@auronix.com',
       name: 'Joao',
-      balance: 125000,
       createdAt: '2026-03-29T00:00:00.000Z',
-      updatedAt: '2026-03-30T00:00:00.000Z',
     }),
     update: vi.fn(),
+    updateAccount: vi.fn((account) => authService.account.set(account)),
   };
 
   const userService = {
@@ -63,9 +73,17 @@ describe('ProfilePage', () => {
       id: 'user-id',
       email: 'joao@auronix.com',
       name: 'Joao',
-      balance: 125000,
       createdAt: '2026-03-29T00:00:00.000Z',
-      updatedAt: '2026-03-30T00:00:00.000Z',
+    });
+    authService.account.set({
+      id: 'account-id',
+      balance: 125000,
+      user: {
+        id: 'user-id',
+        email: 'joao@auronix.com',
+        name: 'Joao',
+        createdAt: '2026-03-29T00:00:00.000Z',
+      },
     });
     userService.logout.mockReturnValue(of(void 0));
     userService.update.mockReturnValue(of(void 0));
@@ -100,9 +118,17 @@ describe('ProfilePage', () => {
       id: 'user-id',
       email: 'joao.silva@auronix.com',
       name: 'Joao Silva',
-      balance: 125000,
       createdAt: '2026-03-29T00:00:00.000Z',
-      updatedAt: '2026-03-30T00:00:00.000Z',
+    });
+    expect(authService.updateAccount).toHaveBeenCalledWith({
+      id: 'account-id',
+      balance: 125000,
+      user: {
+        id: 'user-id',
+        email: 'joao.silva@auronix.com',
+        name: 'Joao Silva',
+        createdAt: '2026-03-29T00:00:00.000Z',
+      },
     });
     expect((fixture.nativeElement as HTMLElement).textContent).toContain(
       'Perfil atualizado com sucesso',

@@ -3,6 +3,7 @@ import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angul
 import { of, throwError } from 'rxjs';
 import { configureAxe } from 'vitest-axe';
 import { vi } from 'vitest';
+import { AccountService } from '../../../core/services/account/account.service';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { UserService } from '../../../core/services/user/user.service';
 import { LoginPage } from './login-page';
@@ -19,6 +20,11 @@ describe('LoginPage', () => {
 
   const authService = {
     update: vi.fn(),
+    updateAccount: vi.fn(),
+  };
+
+  const accountService = {
+    findCurrent: vi.fn().mockReturnValue(of({ id: 'account-id' })),
   };
 
   const userService = {
@@ -38,6 +44,7 @@ describe('LoginPage', () => {
             },
           },
         },
+        { provide: AccountService, useValue: accountService },
         { provide: AuthService, useValue: authService },
         { provide: UserService, useValue: userService },
       ],
@@ -56,6 +63,7 @@ describe('LoginPage', () => {
     TestBed.resetTestingModule();
     vi.clearAllMocks();
     userService.login.mockReturnValue(of({ id: 'user-id' }));
+    accountService.findCurrent.mockReturnValue(of({ id: 'account-id' }));
   });
 
   it('renders the secure login heading', async () => {
@@ -81,6 +89,7 @@ describe('LoginPage', () => {
       password: 'Password1!',
     });
     expect(authService.update).toHaveBeenCalledWith({ id: 'user-id' });
+    expect(authService.updateAccount).toHaveBeenCalledWith({ id: 'account-id' });
     expect(router.navigateByUrl).toHaveBeenCalledWith('/transfer/key?email=maria%40auronix.com');
   });
 

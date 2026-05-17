@@ -1,6 +1,6 @@
 <section class="page-shell" [attr.aria-busy]="shouldShowSkeleton() ? 'true' : null">
   <app-page-header
-    description="Extrato paginado por cursor com leitura densa de valor, natureza, contraparte e horário."
+    description="Extrato paginado com leitura densa de valor, natureza, contraparte e horário."
     kicker="Transferências"
     title="Extrato da conta"
   >
@@ -92,10 +92,6 @@
               <div class="history-row__main">
                 <div class="history-row__headline">
                   <strong>{{ resolveDescription(transfer) }}</strong>
-                  <app-status-chip
-                    [label]="statusLabel(transfer.status)"
-                    [tone]="statusTone(transfer.status)"
-                  />
                 </div>
 
                 <span>{{ resolveCounterparty(transfer) }}</span>

@@ -11,8 +11,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { NotificationEventType } from './core/enums/notification/notification-event-type.enum';
-import { NotificationPayer, NotificationStreamEvent } from './core/models/notification';
+import { NotificationStreamEvent } from './core/models/notification';
 import { ToastNotification } from './core/models/toast';
+import { AccountService } from './core/services/account/account.service';
 import { AuthService } from './core/services/auth/auth.service';
 import { NotificationService } from './core/services/notification/notification.service';
 import { ToastService } from './core/services/toast/toast.service';
@@ -85,6 +86,7 @@ const WORKSPACE_NAVIGATION: WorkspaceNavigationItem[] = [
 })
 export class App {
   private readonly authService = inject(AuthService);
+  private readonly accountService = inject(AccountService);
   private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
   private readonly toastService = inject(ToastService);
@@ -93,13 +95,13 @@ export class App {
   protected readonly navigation = WORKSPACE_NAVIGATION;
   protected readonly user = this.authService.data;
 
-  protected readonly balanceLabel = computed(() => formatCurrency(this.user()?.balance ?? 0));
+  protected readonly balanceLabel = computed(() => formatCurrency(this.authService.balance()));
   protected readonly isAuthRoute = computed(() => this.currentUrl().startsWith('/user/'));
   protected readonly userDescriptor = computed(() => {
     const user = this.user();
     if (!user) return 'Sessão protegida';
 
-    return `Conta ${user.id.slice(0, 8).toUpperCase()}`;
+    return `Conta ${(this.authService.account()?.id || user.id).slice(0, 8).toUpperCase()}`;
   });
   protected readonly userInitials = computed(() => {
     const name = this.user()?.name;
@@ -127,7 +129,7 @@ export class App {
       .connect()
       .pipe(takeUntilDestroyed())
       .subscribe((event) => {
-        this.authService.updateBalance(event.data.balance);
+        this.refreshAccount();
         this.presentNotification(event);
       });
 
@@ -154,48 +156,24 @@ export class App {
 
   private createToast(event: NotificationStreamEvent): ToastNotification {
     const amount = formatCurrency(event.data.amount);
-    const description = this.resolveNotificationDescription(event.data.description);
 
     if (event.type == NotificationEventType.TransferCompleted) {
       return {
         id: event.id,
         title: 'Transferência concluída',
-        message: `${description} · ${amount}`,
-        route: ['/transfer', event.data.transferId],
+        message: `Operação liquidada · ${amount}`,
+        route: ['/transfer', event.data.transactionId],
         variant: 'success',
       };
     }
 
-    if (event.type == NotificationEventType.TransferFailed) {
-      const failureReason =
-        'failureReason' in event.data ? event.data.failureReason : 'Falha operacional';
-
-      return {
-        id: event.id,
-        title: 'Transferência rejeitada',
-        message: `${description} · ${amount}. ${failureReason}`,
-        route: ['/transfer', event.data.transferId],
-        variant: 'error',
-      };
-    }
-
-    const payer = 'payer' in event.data ? event.data.payer : null;
-
     return {
       id: event.id,
-      title: 'Transferência em processamento',
-      message: `${description} · ${amount} · Pagador: ${this.resolveNotificationPayer(payer)}`,
-      route: ['/transfer', event.data.transferId],
+      title: 'Movimentação da conta',
+      message: `Operação registrada · ${amount}`,
+      route: ['/transfer', event.data.transactionId],
       variant: 'info',
     };
-  }
-
-  private resolveNotificationDescription(description: string | null): string {
-    return description?.trim() || 'Sem descrição informada';
-  }
-
-  private resolveNotificationPayer(payer?: NotificationPayer | null): string {
-    return payer?.name?.trim() || payer?.email?.trim() || 'Conta protegida';
   }
 
   private isDocumentVisible(): boolean {
@@ -226,7 +204,8 @@ export class App {
         return;
       }
     } catch {
-      /* Fall back to the in-app toast below. */
+      this.toastService.show(toast);
+      return;
     }
 
     this.toastService.show(toast);
@@ -243,5 +222,11 @@ export class App {
       this.router.navigate(toast.route);
       notification.close();
     };
+  }
+
+  private refreshAccount(): void {
+    this.accountService.findCurrent().subscribe({
+      next: (account) => this.authService.updateAccount(account),
+    });
   }
 }

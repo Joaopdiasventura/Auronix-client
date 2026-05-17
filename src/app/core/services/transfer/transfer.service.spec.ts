@@ -35,63 +35,48 @@ describe('TransferService', () => {
   });
 
   it('creates transfers with credentials', () => {
-    service
-      .create({ payeeId: 'payee-id', value: 5000, description: 'Pedido principal' })
-      .subscribe();
+    service.create({ payeeAccountId: 'payee-account-id', amount: 5000 }).subscribe();
 
-    const request = httpController.expectOne('http://localhost:3000/transfer');
+    const request = httpController.expectOne('http://localhost:8080/transaction');
     expect(request.request.method).toBe('POST');
     expect(request.request.withCredentials).toBe(true);
     expect(request.request.body).toEqual({
-      payeeId: 'payee-id',
-      value: 5000,
-      description: 'Pedido principal',
+      payeeAccountId: 'payee-account-id',
+      amount: 5000,
     });
 
-    request.flush({ id: 'transfer-id' });
+    request.flush(null);
   });
 
-  it('lists transfers using the cursor pagination contract', () => {
-    service.findMany({ limit: 8 }).subscribe();
-
-    const request = httpController.expectOne('http://localhost:3000/transfer?limit=8');
-    expect(request.request.method).toBe('GET');
-    expect(request.request.withCredentials).toBe(true);
-    expect(request.request.params.get('cursor')).toBeNull();
-
-    request.flush({ data: [], next: null });
-  });
-
-  it('serializes the cursor when requesting the next transfer page', () => {
-    service
-      .findMany({
-        limit: 4,
-        cursor: {
-          completedAt: '2026-03-29T10:00:00.000Z',
-          id: '0f10d5f8-aefb-4c0d-b77f-0f77b4bd4bb5',
-        },
-      })
-      .subscribe();
+  it('lists transfers using the Spring pagination contract', () => {
+    service.findMany(0, 8).subscribe();
 
     const request = httpController.expectOne(
-      ({ url, params }) => url == 'http://localhost:3000/transfer' && params.get('limit') == '4',
+      ({ url, params }) =>
+        url == 'http://localhost:8080/transaction' &&
+        params.get('page') == '0' &&
+        params.get('size') == '8' &&
+        params.get('sort') == 'createdAt,desc',
     );
     expect(request.request.method).toBe('GET');
     expect(request.request.withCredentials).toBe(true);
-    expect(request.request.params.get('cursor')).toBe(
-      JSON.stringify({
-        completedAt: '2026-03-29T10:00:00.000Z',
-        id: '0f10d5f8-aefb-4c0d-b77f-0f77b4bd4bb5',
-      }),
-    );
 
-    request.flush({ data: [], next: null });
+    request.flush({
+      content: [],
+      number: 0,
+      size: 8,
+      totalElements: 0,
+      totalPages: 0,
+      first: true,
+      last: true,
+      empty: true,
+    });
   });
 
   it('fetches a transfer by id with credentials', () => {
     service.findById('transfer-id').subscribe();
 
-    const request = httpController.expectOne('http://localhost:3000/transfer/transfer-id');
+    const request = httpController.expectOne('http://localhost:8080/transaction/transfer-id');
     expect(request.request.method).toBe('GET');
     expect(request.request.withCredentials).toBe(true);
 

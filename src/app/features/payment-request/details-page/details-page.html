@@ -123,7 +123,7 @@
         <div class="request-side">
           <article class="request-meta surface-card">
             <div class="readonly-grid">
-              @if (paymentRequest()!.user?.name) {
+              @if (paymentRequest()!.account.name) {
                 <div class="readonly-field">
                   <span class="readonly-field__label">Favorecido</span>
                   <strong class="readonly-field__value">{{ requesterName() }}</strong>

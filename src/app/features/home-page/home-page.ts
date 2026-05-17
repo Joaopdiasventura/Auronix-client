@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { TransferStatus } from '../../core/enums/transfer/transfer-status.enum';
 import { Transfer } from '../../core/models/transfer';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { NotificationService } from '../../core/services/notification/notification.service';
@@ -12,10 +11,10 @@ import { PageHeader } from '../../shared/components/ui/page-header/page-header';
 import { Skeleton } from '../../shared/components/ui/skeleton/skeleton';
 import { SkeletonListRow } from '../../shared/components/ui/skeleton/skeleton-list-row';
 import { SkeletonMetricCard } from '../../shared/components/ui/skeleton/skeleton-metric-card';
-import { StatusChip } from '../../shared/components/ui/status-chip/status-chip';
 import { DashboardMetric } from '../../shared/view-models/ui';
 import { formatCurrency } from '../../shared/utils/format-currency';
 import { formatDateTime } from '../../shared/utils/format-date-time';
+import { httpErrorMessage } from '../../shared/utils/http-error-message';
 
 @Component({
   selector: 'app-home-page',
@@ -27,7 +26,6 @@ import { formatDateTime } from '../../shared/utils/format-date-time';
     Skeleton,
     SkeletonListRow,
     SkeletonMetricCard,
-    StatusChip,
   ],
   templateUrl: './home-page.html',
   styleUrl: './home-page.scss',
@@ -43,15 +41,15 @@ export class HomePage {
   protected readonly transfers = signal<Transfer[]>([]);
   protected readonly user = this.authService.data;
 
-  protected readonly balanceLabel = computed(() => formatCurrency(this.user()?.balance ?? 0));
+  protected readonly balanceLabel = computed(() => formatCurrency(this.authService.balance()));
   protected readonly dashboardMetrics = computed<DashboardMetric[]>(() => {
     const incoming = this.transfers().reduce((sum, transfer) => {
       if (this.isOutgoingTransfer(transfer)) return sum;
-      return sum + transfer.value;
+      return sum + transfer.amount;
     }, 0);
     const outgoing = this.transfers().reduce((sum, transfer) => {
       if (!this.isOutgoingTransfer(transfer)) return sum;
-      return sum + transfer.value;
+      return sum + transfer.amount;
     }, 0);
     const net = incoming - outgoing;
 
@@ -102,15 +100,15 @@ export class HomePage {
   }
 
   protected isOutgoingTransfer(transfer: Transfer): boolean {
-    return transfer.payer?.id == this.user()?.id;
+    return transfer.payer.id == this.authService.account()?.id;
   }
 
   protected resolveTransferCounterparty(transfer: Transfer): string {
     if (this.isOutgoingTransfer(transfer)) {
-      return `Pago para ${transfer.payee?.name || 'Conta protegida'}`;
+      return `Pago para ${transfer.payee.name || 'Conta protegida'}`;
     }
 
-    return `Recebido de ${transfer.payer?.name || 'Conta protegida'}`;
+    return `Recebido de ${transfer.payer.name || 'Conta protegida'}`;
   }
 
   protected resolveTransferDate(transfer: Transfer): string {
@@ -119,23 +117,11 @@ export class HomePage {
 
   protected resolveTransferValue(transfer: Transfer): string {
     const sign = this.isOutgoingTransfer(transfer) ? '- ' : '+ ';
-    return sign + formatCurrency(transfer.value);
-  }
-
-  protected statusTone(status: TransferStatus): 'danger' | 'success' | 'warning' {
-    if (status == TransferStatus.Completed) return 'success';
-    if (status == TransferStatus.Failed) return 'danger';
-    return 'warning';
-  }
-
-  protected statusLabel(status: TransferStatus): string {
-    if (status == TransferStatus.Completed) return 'Concluída';
-    if (status == TransferStatus.Failed) return 'Falhou';
-    return 'Pendente';
+    return sign + formatCurrency(transfer.amount);
   }
 
   private resolveTransferTimestampValue(transfer: Transfer): string {
-    return transfer.completedAt || transfer.createdAt;
+    return transfer.createdAt;
   }
 
   private loadDashboard(showLoading = true): void {
@@ -143,9 +129,9 @@ export class HomePage {
 
     this.errorMessage.set(null);
 
-    this.transferService.findMany({ limit: 12 }).subscribe({
-      next: ({ data }) => {
-        this.transfers.set(data);
+    this.transferService.findMany(0, 12).subscribe({
+      next: ({ content }) => {
+        this.transfers.set(content);
         this.isLoading.set(false);
       },
       error: ({ error, status }) => {
@@ -154,7 +140,7 @@ export class HomePage {
           return;
         }
 
-        this.errorMessage.set(error.message || 'Não foi possível carregar o painel');
+        this.errorMessage.set(httpErrorMessage(error, 'Não foi possível carregar o painel'));
         this.isLoading.set(false);
       },
     });

@@ -10,6 +10,7 @@ import { StatusChip } from '../../../shared/components/ui/status-chip/status-chi
 import { PageFeedbackState } from '../../../shared/view-models/ui';
 import { formatCurrency } from '../../../shared/utils/format-currency';
 import { formatDateTime } from '../../../shared/utils/format-date-time';
+import { httpErrorMessage } from '../../../shared/utils/http-error-message';
 
 @Component({
   selector: 'app-payment-request-details-page',
@@ -42,9 +43,9 @@ export class PaymentRequestDetailsPage {
     const paymentRequest = this.paymentRequest();
     const currentUserId = this.authService.data()?.id;
 
-    if (!paymentRequest?.user?.id || !currentUserId) return false;
+    if (!paymentRequest?.account?.id || !currentUserId) return false;
 
-    return paymentRequest.user.id != currentUserId;
+    return paymentRequest.account.id != this.authService.account()?.id;
   });
   protected readonly feedbackState = computed<PageFeedbackState | null>(() => {
     if (!this.isLoading() && !this.isAuthenticated()) {
@@ -71,12 +72,12 @@ export class PaymentRequestDetailsPage {
     const paymentRequest = this.paymentRequest();
     const currentUserId = this.authService.data()?.id;
 
-    if (!paymentRequest?.user?.id || !currentUserId) return false;
+    if (!paymentRequest?.account?.id || !currentUserId) return false;
 
-    return paymentRequest.user.id == currentUserId;
+    return paymentRequest.account.id == this.authService.account()?.id;
   });
   protected readonly requesterName = computed(
-    () => this.paymentRequest()?.user?.name || 'Conta protegida',
+    () => this.paymentRequest()?.account.name || 'Conta protegida',
   );
   protected readonly requestMetaSkeletonLabelWidths = ['7rem', '6rem', '4.75rem', '8rem'];
   protected readonly requestMetaSkeletonValueWidths = ['10rem', '12rem', '9rem', '10rem'];
@@ -130,7 +131,7 @@ export class PaymentRequestDetailsPage {
           return;
         }
 
-        this.errorMessage.set(error.message || 'Não foi possível validar esta cobrança');
+        this.errorMessage.set(httpErrorMessage(error, 'Não foi possível validar esta cobrança'));
         this.isLoading.set(false);
       },
     });

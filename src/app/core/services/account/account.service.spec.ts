@@ -6,11 +6,11 @@ import {
 } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { PaymentRequestService } from './payment-request.service';
+import { AccountService } from './account.service';
 
-describe('PaymentRequestService', () => {
+describe('AccountService', () => {
   let httpController: HttpTestingController;
-  let service: PaymentRequestService;
+  let service: AccountService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -22,11 +22,11 @@ describe('PaymentRequestService', () => {
           ]),
         ),
         provideHttpClientTesting(),
-        PaymentRequestService,
+        AccountService,
       ],
     });
 
-    service = TestBed.inject(PaymentRequestService);
+    service = TestBed.inject(AccountService);
     httpController = TestBed.inject(HttpTestingController);
   });
 
@@ -34,24 +34,27 @@ describe('PaymentRequestService', () => {
     httpController.verify();
   });
 
-  it('creates payment requests with credentials', () => {
-    service.create({ value: 15000 }).subscribe();
+  it('fetches the current account with credentials', () => {
+    service.findCurrent().subscribe();
 
-    const request = httpController.expectOne('http://localhost:8080/payment-request');
-    expect(request.request.method).toBe('POST');
-    expect(request.request.body).toEqual({ value: 15000 });
-    expect(request.request.withCredentials).toBe(true);
-
-    request.flush({ id: 'request-id' });
-  });
-
-  it('retrieves a payment request by id with credentials', () => {
-    service.findById('request-id').subscribe();
-
-    const request = httpController.expectOne('http://localhost:8080/payment-request/request-id');
+    const request = httpController.expectOne('http://localhost:8080/account');
     expect(request.request.method).toBe('GET');
     expect(request.request.withCredentials).toBe(true);
 
-    request.flush({ id: 'request-id', value: 15000, createdAt: '2026-03-29T00:00:00.000Z' });
+    request.flush({ id: 'account-id' });
+  });
+
+  it('finds account ids by user email with credentials', () => {
+    service.findIdByUserEmail('user@auronix.com').subscribe();
+
+    const request = httpController.expectOne(
+      ({ url, params }) =>
+        url == 'http://localhost:8080/account/email' &&
+        params.get('email') == 'user@auronix.com',
+    );
+    expect(request.request.method).toBe('GET');
+    expect(request.request.withCredentials).toBe(true);
+
+    request.flush('account-id');
   });
 });

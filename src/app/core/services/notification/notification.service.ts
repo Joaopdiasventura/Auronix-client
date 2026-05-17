@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, Observer, Subject } from 'rxjs';
 import { NotificationEventType } from '../../enums/notification/notification-event-type.enum';
-import { NotificationSseMessage, NotificationStreamEvent } from '../../models/notification';
+import { NotificationEventDataMap, NotificationStreamEvent } from '../../models/notification';
 
 declare const API_URL: string;
 
@@ -9,7 +9,7 @@ declare const API_URL: string;
   providedIn: 'root',
 })
 export class NotificationService {
-  private readonly streamUrl = API_URL + '/notification/stream';
+  private readonly streamUrl = API_URL + '/notifications/stream';
   private readonly eventsSource = new Subject<NotificationStreamEvent>();
   private eventSource: EventSource | null = null;
   private listeners: {
@@ -68,11 +68,11 @@ export class NotificationService {
     data: string,
   ): NotificationStreamEvent<T> | null {
     try {
-      const payload = JSON.parse(data) as NotificationSseMessage<T>;
+      const payload = JSON.parse(data) as NotificationEventDataMap[T];
       return {
         id,
         type: eventType,
-        data: payload.data,
+        data: payload,
       };
     } catch {
       return null;

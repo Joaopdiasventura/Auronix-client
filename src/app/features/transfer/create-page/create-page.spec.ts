@@ -10,10 +10,10 @@ import {
 import { of, Subject, throwError } from 'rxjs';
 import { configureAxe } from 'vitest-axe';
 import { vi } from 'vitest';
+import { AccountService } from '../../../core/services/account/account.service';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { PaymentRequestService } from '../../../core/services/payment-request/payment-request.service';
 import { TransferService } from '../../../core/services/transfer/transfer.service';
-import { UserService } from '../../../core/services/user/user.service';
 import { TransferCreatePage } from './create-page';
 
 const axe = configureAxe({
@@ -29,14 +29,26 @@ describe('TransferCreatePage', () => {
 
   const authService = {
     clear: vi.fn(),
+    account: signal({
+      id: 'account-id',
+      balance: 100000,
+      user: {
+        id: 'user-id',
+        email: 'joao@auronix.com',
+        name: 'Joao',
+        createdAt: '2026-03-29T00:00:00.000Z',
+      },
+    }),
     data: signal({
       id: 'user-id',
       email: 'joao@auronix.com',
       name: 'Joao',
-      balance: 100000,
       createdAt: '2026-03-29T00:00:00.000Z',
-      updatedAt: '2026-03-29T00:00:00.000Z',
     }),
+  };
+
+  const accountService = {
+    findIdByUserEmail: vi.fn(),
   };
 
   const paymentRequestService = {
@@ -45,10 +57,6 @@ describe('TransferCreatePage', () => {
 
   const transferService = {
     create: vi.fn(),
-  };
-
-  const userService = {
-    findByEmail: vi.fn(),
   };
 
   async function configureComponent(
@@ -69,10 +77,10 @@ describe('TransferCreatePage', () => {
             queryParamMap,
           },
         },
+        { provide: AccountService, useValue: accountService },
         { provide: AuthService, useValue: authService },
         { provide: PaymentRequestService, useValue: paymentRequestService },
         { provide: TransferService, useValue: transferService },
-        { provide: UserService, useValue: userService },
       ],
     }).compileComponents();
 
@@ -93,35 +101,21 @@ describe('TransferCreatePage', () => {
         id: paymentRequestId,
         value: 3500,
         createdAt: '2026-03-29T10:00:00.000Z',
-        user: {
-          id: 'payee-id',
+        account: {
+          id: 'payee-account-id',
+          email: 'maria@auronix.com',
           name: 'Maria',
+          createdAt: '2026-03-29T00:00:00.000Z',
         },
       }),
     );
-    transferService.create.mockReturnValue(of({ id: 'transfer-id' }));
-    userService.findByEmail.mockReturnValue(
-      of({
-        id: 'payee-id',
-        email: 'maria@auronix.com',
-        name: 'Maria',
-        balance: 120000,
-        createdAt: '2026-03-29T00:00:00.000Z',
-        updatedAt: '2026-03-29T00:00:00.000Z',
-      }),
-    );
+    transferService.create.mockReturnValue(of(null));
+    accountService.findIdByUserEmail.mockReturnValue(of('payee-account-id'));
   });
 
   it('shows the email skeleton variant while the payee is loading', async () => {
-    const payeeResponse$ = new Subject<{
-      id: string;
-      email: string;
-      name: string;
-      balance: number;
-      createdAt: string;
-      updatedAt: string;
-    }>();
-    userService.findByEmail.mockReturnValue(payeeResponse$.asObservable());
+    const payeeResponse$ = new Subject<string>();
+    accountService.findIdByUserEmail.mockReturnValue(payeeResponse$.asObservable());
 
     await configureComponent({ email: 'maria@auronix.com' });
 
@@ -134,14 +128,7 @@ describe('TransferCreatePage', () => {
     ).toHaveLength(3);
     expect(nativeElement.querySelector('#value')).toBeNull();
 
-    payeeResponse$.next({
-      id: 'payee-id',
-      email: 'maria@auronix.com',
-      name: 'Maria',
-      balance: 120000,
-      createdAt: '2026-03-29T00:00:00.000Z',
-      updatedAt: '2026-03-29T00:00:00.000Z',
-    });
+    payeeResponse$.next('payee-account-id');
     payeeResponse$.complete();
     fixture.detectChanges();
     await fixture.whenStable();
@@ -159,9 +146,11 @@ describe('TransferCreatePage', () => {
       id: string;
       value: number;
       createdAt: string;
-      user: {
+      account: {
         id: string;
+        email: string;
         name: string;
+        createdAt: string;
       };
     }>();
     paymentRequestService.findById.mockReturnValue(paymentRequestResponse$.asObservable());
@@ -181,9 +170,11 @@ describe('TransferCreatePage', () => {
       id: paymentRequestId,
       value: 3500,
       createdAt: '2026-03-29T10:00:00.000Z',
-      user: {
-        id: 'payee-id',
+      account: {
+        id: 'payee-account-id',
+        email: 'maria@auronix.com',
         name: 'Maria',
+        createdAt: '2026-03-29T00:00:00.000Z',
       },
     });
     paymentRequestResponse$.complete();
@@ -216,23 +207,16 @@ describe('TransferCreatePage', () => {
     await configureComponent({ paymentRequest: paymentRequestId });
 
     const nativeElement = fixture.nativeElement as HTMLElement;
-    const descriptionInput = nativeElement.querySelector('#description') as HTMLInputElement;
-
-    descriptionInput.value = 'Cobrança principal';
-    descriptionInput.dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-
     const form = nativeElement.querySelector('form') as HTMLFormElement;
     form.dispatchEvent(new Event('submit'));
     fixture.detectChanges();
     await fixture.whenStable();
 
     expect(transferService.create).toHaveBeenCalledWith({
-      payeeId: 'payee-id',
-      value: 3500,
-      description: 'Cobrança principal',
+      payeeAccountId: 'payee-account-id',
+      amount: 3500,
     });
-    expect(router.navigate).toHaveBeenCalledWith(['/transfer', 'transfer-id']);
+    expect(router.navigate).toHaveBeenCalledWith(['/transfer']);
   });
 
   it('resolves the payee by email and allows value editing', async () => {
@@ -240,14 +224,11 @@ describe('TransferCreatePage', () => {
 
     const nativeElement = fixture.nativeElement as HTMLElement;
     const valueInput = nativeElement.querySelector('#value') as HTMLInputElement;
-    const descriptionInput = nativeElement.querySelector('#description') as HTMLInputElement;
 
     expect(nativeElement.textContent).toContain('maria@auronix.com');
 
     valueInput.value = '199,90';
     valueInput.dispatchEvent(new Event('input'));
-    descriptionInput.value = 'Transferencia por chave';
-    descriptionInput.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
     const form = nativeElement.querySelector('form') as HTMLFormElement;
@@ -255,15 +236,14 @@ describe('TransferCreatePage', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(userService.findByEmail).toHaveBeenCalledWith('maria@auronix.com');
+    expect(accountService.findIdByUserEmail).toHaveBeenCalledWith('maria@auronix.com');
     expect(transferService.create).toHaveBeenCalledWith({
-      payeeId: 'payee-id',
-      value: 19990,
-      description: 'Transferencia por chave',
+      payeeAccountId: 'payee-account-id',
+      amount: 19990,
     });
   });
 
-  it('creates the transfer without description when the field is blank', async () => {
+  it('creates the transfer using only the backend payload fields', async () => {
     await configureComponent({ email: 'maria@auronix.com' });
 
     const nativeElement = fixture.nativeElement as HTMLElement;
@@ -279,8 +259,8 @@ describe('TransferCreatePage', () => {
     await fixture.whenStable();
 
     expect(transferService.create).toHaveBeenCalledWith({
-      payeeId: 'payee-id',
-      value: 19990,
+      payeeAccountId: 'payee-account-id',
+      amount: 19990,
     });
   });
 
@@ -307,12 +287,9 @@ describe('TransferCreatePage', () => {
 
     const nativeElement = fixture.nativeElement as HTMLElement;
     const valueInput = nativeElement.querySelector('#value') as HTMLInputElement;
-    const descriptionInput = nativeElement.querySelector('#description') as HTMLInputElement;
 
     valueInput.value = '199,90';
     valueInput.dispatchEvent(new Event('input'));
-    descriptionInput.value = 'Transferencia por chave';
-    descriptionInput.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
     queryParamMap$.next(convertToParamMap({ paymentRequest: paymentRequestId }));
@@ -321,35 +298,26 @@ describe('TransferCreatePage', () => {
     fixture.detectChanges();
 
     const updatedNativeElement = fixture.nativeElement as HTMLElement;
-    const updatedDescriptionInput = updatedNativeElement.querySelector(
-      '#description',
-    ) as HTMLInputElement;
 
     expect(updatedNativeElement.querySelector('#value')).toBeNull();
-    expect(updatedDescriptionInput.value).toBe('');
   });
 
   it('ignores stale target responses after the route params change', async () => {
     const queryParamMap$ = new Subject<ParamMap>();
-    const payeeResponse$ = new Subject<{
-      id: string;
-      email: string;
-      name: string;
-      balance: number;
-      createdAt: string;
-      updatedAt: string;
-    }>();
+    const payeeResponse$ = new Subject<string>();
     const paymentRequestResponse$ = new Subject<{
       id: string;
       value: number;
       createdAt: string;
-      user: {
+      account: {
         id: string;
+        email: string;
         name: string;
+        createdAt: string;
       };
     }>();
 
-    userService.findByEmail.mockReturnValue(payeeResponse$.asObservable());
+    accountService.findIdByUserEmail.mockReturnValue(payeeResponse$.asObservable());
     paymentRequestService.findById.mockReturnValue(paymentRequestResponse$.asObservable());
 
     await configureComponent(queryParamMap$);
@@ -362,14 +330,7 @@ describe('TransferCreatePage', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    payeeResponse$.next({
-      id: 'stale-payee-id',
-      email: 'stale@auronix.com',
-      name: 'Favorecido antigo',
-      balance: 120000,
-      createdAt: '2026-03-29T00:00:00.000Z',
-      updatedAt: '2026-03-29T00:00:00.000Z',
-    });
+    payeeResponse$.next('stale-payee-account-id');
     payeeResponse$.complete();
     fixture.detectChanges();
 
@@ -377,9 +338,11 @@ describe('TransferCreatePage', () => {
       id: paymentRequestId,
       value: 3500,
       createdAt: '2026-03-29T10:00:00.000Z',
-      user: {
-        id: 'current-payee-id',
+      account: {
+        id: 'current-payee-account-id',
+        email: 'atual@auronix.com',
         name: 'Favorecido atual',
+        createdAt: '2026-03-29T00:00:00.000Z',
       },
     });
     paymentRequestResponse$.complete();

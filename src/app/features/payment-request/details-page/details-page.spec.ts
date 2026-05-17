@@ -14,21 +14,31 @@ describe('PaymentRequestDetailsPage', () => {
     id: 'request-id',
     value: 2500,
     createdAt: '2026-03-29T10:00:00.000Z',
-    user: {
-      id: 'payee-id',
+    account: {
+      id: 'payee-account-id',
+      email: 'maria@auronix.com',
       name: 'Maria',
+      createdAt: '2026-03-29T00:00:00.000Z',
     },
   };
 
   const authService = {
     clear: vi.fn(),
+    account: signal({
+      id: 'account-id',
+      balance: 100000,
+      user: {
+        id: 'user-id',
+        email: 'joao@auronix.com',
+        name: 'Joao',
+        createdAt: '2026-03-29T00:00:00.000Z',
+      },
+    }),
     data: signal({
       id: 'user-id',
       email: 'joao@auronix.com',
       name: 'Joao',
-      balance: 100000,
       createdAt: '2026-03-29T00:00:00.000Z',
-      updatedAt: '2026-03-29T00:00:00.000Z',
     }),
     isLoggedIn: vi.fn(() => false),
     update: vi.fn(),

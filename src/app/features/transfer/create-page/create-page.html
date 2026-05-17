@@ -141,19 +141,6 @@
             />
           }
 
-          <app-input
-            autocomplete="off"
-            hint="A descrição é opcional e aparece no extrato e no detalhe da transferência."
-            label="Descrição (opcional)"
-            name="description"
-            [placeholder]="
-              isPaymentRequestMode()
-                ? 'Transferência referente à cobrança validada'
-                : 'Transferência identificada por e-mail'
-            "
-            [formField]="createTransferForm.description"
-          />
-
           <button
             class="button button--primary button--block"
             type="submit"

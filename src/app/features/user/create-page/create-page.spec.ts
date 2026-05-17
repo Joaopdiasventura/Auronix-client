@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
+import { AccountService } from '../../../core/services/account/account.service';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { UserService } from '../../../core/services/user/user.service';
 import { CreatePage } from './create-page';
@@ -12,6 +13,11 @@ describe('CreatePage', () => {
 
   const authService = {
     update: vi.fn(),
+    updateAccount: vi.fn(),
+  };
+
+  const accountService = {
+    findCurrent: vi.fn().mockReturnValue(of({ id: 'account-id' })),
   };
 
   const userService = {
@@ -23,6 +29,7 @@ describe('CreatePage', () => {
       imports: [CreatePage],
       providers: [
         provideRouter([]),
+        { provide: AccountService, useValue: accountService },
         { provide: AuthService, useValue: authService },
         { provide: UserService, useValue: userService },
       ],
@@ -41,6 +48,7 @@ describe('CreatePage', () => {
     TestBed.resetTestingModule();
     vi.clearAllMocks();
     userService.create.mockReturnValue(of({ id: 'user-id' }));
+    accountService.findCurrent.mockReturnValue(of({ id: 'account-id' }));
   });
 
   it('renders the account creation heading', async () => {
@@ -68,6 +76,7 @@ describe('CreatePage', () => {
       password: 'Password1!',
     });
     expect(authService.update).toHaveBeenCalledWith({ id: 'user-id' });
+    expect(authService.updateAccount).toHaveBeenCalledWith({ id: 'account-id' });
     expect(router.navigate).toHaveBeenCalledWith(['/']);
   });
 

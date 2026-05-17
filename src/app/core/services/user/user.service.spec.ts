@@ -43,7 +43,7 @@ describe('UserService', () => {
       })
       .subscribe();
 
-    const request = httpController.expectOne('http://localhost:3000/user');
+    const request = httpController.expectOne('http://localhost:8080/user');
     expect(request.request.method).toBe('POST');
     expect(request.request.withCredentials).toBe(true);
     expect(request.request.body).toEqual({
@@ -58,7 +58,7 @@ describe('UserService', () => {
   it('sends login requests with credentials', () => {
     service.login({ email: 'user@auronix.com', password: 'Password1!' }).subscribe();
 
-    const request = httpController.expectOne('http://localhost:3000/user/login');
+    const request = httpController.expectOne('http://localhost:8080/user/login');
     expect(request.request.method).toBe('POST');
     expect(request.request.withCredentials).toBe(true);
     expect(request.request.body).toEqual({
@@ -72,7 +72,7 @@ describe('UserService', () => {
   it('sends logout requests with credentials', () => {
     service.logout().subscribe();
 
-    const request = httpController.expectOne('http://localhost:3000/user/logout');
+    const request = httpController.expectOne('http://localhost:8080/user/logout');
     expect(request.request.method).toBe('POST');
     expect(request.request.withCredentials).toBe(true);
 
@@ -82,17 +82,7 @@ describe('UserService', () => {
   it('decodes the current session with credentials', () => {
     service.decodeToken().subscribe();
 
-    const request = httpController.expectOne('http://localhost:3000/user');
-    expect(request.request.method).toBe('GET');
-    expect(request.request.withCredentials).toBe(true);
-
-    request.flush({ id: 'user-id' });
-  });
-
-  it('fetches users by email with credentials', () => {
-    service.findByEmail('user@auronix.com').subscribe();
-
-    const request = httpController.expectOne('http://localhost:3000/user/user%40auronix.com');
+    const request = httpController.expectOne('http://localhost:8080/user');
     expect(request.request.method).toBe('GET');
     expect(request.request.withCredentials).toBe(true);
 
@@ -107,7 +97,7 @@ describe('UserService', () => {
       })
       .subscribe();
 
-    const request = httpController.expectOne('http://localhost:3000/user');
+    const request = httpController.expectOne('http://localhost:8080/user');
     expect(request.request.method).toBe('PATCH');
     expect(request.request.withCredentials).toBe(true);
     expect(request.request.body).toEqual({
@@ -121,7 +111,7 @@ describe('UserService', () => {
   it('deletes the current user with credentials', () => {
     service.delete().subscribe();
 
-    const request = httpController.expectOne('http://localhost:3000/user');
+    const request = httpController.expectOne('http://localhost:8080/user');
     expect(request.request.method).toBe('DELETE');
     expect(request.request.withCredentials).toBe(true);
 

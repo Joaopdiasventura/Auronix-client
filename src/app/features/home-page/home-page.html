@@ -127,11 +127,7 @@
               <a class="ledger-row" [routerLink]="['/transfer', transfer.id]">
                 <div class="ledger-row__main">
                   <div class="ledger-row__headline">
-                    <strong>{{ transfer.description }}</strong>
-                    <app-status-chip
-                      [label]="statusLabel(transfer.status)"
-                      [tone]="statusTone(transfer.status)"
-                    />
+                    <strong>Transferência liquidada</strong>
                   </div>
 
                   <span>{{ resolveTransferCounterparty(transfer) }}</span>

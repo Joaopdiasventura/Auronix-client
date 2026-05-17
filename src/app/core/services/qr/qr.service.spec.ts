@@ -1,5 +1,10 @@
 import { TestBed } from '@angular/core/testing';
+import { vi } from 'vitest';
 import { QrService } from './qr.service';
+
+vi.mock('qrcode', () => ({
+  toDataURL: vi.fn().mockResolvedValue('data:image/png;base64,mock'),
+}));
 
 describe('QrService', () => {
   let service: QrService;

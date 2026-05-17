@@ -1,24 +1,23 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { form, maxLength, validate } from '@angular/forms/signals';
+import { form, validate } from '@angular/forms/signals';
 import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
 import { PaymentRequest } from '../../../core/models/payment-request';
-import { User } from '../../../core/models/user';
+import { AccountService } from '../../../core/services/account/account.service';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { PaymentRequestService } from '../../../core/services/payment-request/payment-request.service';
 import { TransferService } from '../../../core/services/transfer/transfer.service';
-import { UserService } from '../../../core/services/user/user.service';
 import { CustomInput } from '../../../shared/components/ui/custom-input/custom-input';
 import { PageHeader } from '../../../shared/components/ui/page-header/page-header';
 import { Skeleton } from '../../../shared/components/ui/skeleton/skeleton';
 import { SkeletonReadonlyGrid } from '../../../shared/components/ui/skeleton/skeleton-readonly-grid';
 import { PageFeedbackState } from '../../../shared/view-models/ui';
 import { formatCurrency } from '../../../shared/utils/format-currency';
+import { httpErrorMessage } from '../../../shared/utils/http-error-message';
 import { parseMoneyInput } from '../../../shared/utils/parse-money-input';
 import { resolveTransferKey } from '../../../shared/utils/resolve-transfer-key';
 
 interface CreateTransferFormValue {
-  description: string;
   value: string;
 }
 
@@ -37,29 +36,24 @@ export class TransferCreatePage {
   protected readonly isSubmitting = signal(false);
   protected readonly mode = signal<TransferCreateMode>(null);
   protected readonly pageErrorMessage = signal<string | null>(null);
-  protected readonly payee = signal<User | null>(null);
+  protected readonly payeeAccountId = signal('');
   protected readonly payeeEmail = signal('');
   protected readonly paymentRequest = signal<PaymentRequest | null>(null);
   protected readonly paymentRequestId = signal('');
 
+  private readonly accountService = inject(AccountService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
   private readonly paymentRequestService = inject(PaymentRequestService);
   private readonly router = inject(Router);
   private readonly transferService = inject(TransferService);
-  private readonly userService = inject(UserService);
   private routeStateRequestId = 0;
 
   private readonly createTransferModel = signal<CreateTransferFormValue>({
-    description: '',
     value: '',
   });
 
   protected readonly createTransferForm = form(this.createTransferModel, (schema) => {
-    maxLength(schema.description, 255, {
-      message: 'Digite uma descrição com até 255 caracteres',
-    });
-
     validate(schema.value, ({ value }) => {
       if (!this.isEmailMode()) return undefined;
 
@@ -107,7 +101,7 @@ export class TransferCreatePage {
     return paymentRequest ? formatCurrency(paymentRequest.value) : '';
   });
   protected readonly hasResolvedTarget = computed(() => {
-    if (this.isEmailMode()) return this.payee() !== null;
+    if (this.isEmailMode()) return this.payeeAccountId().length > 0;
     if (this.isPaymentRequestMode()) return this.paymentRequest() !== null;
     return false;
   });
@@ -119,20 +113,20 @@ export class TransferCreatePage {
     const currentUserId = this.authService.data()?.id;
     if (!currentUserId) return false;
 
-    if (this.isEmailMode()) return this.payee()?.id == currentUserId;
+    if (this.isEmailMode()) return this.payeeAccountId() == this.authService.account()?.id;
 
-    return this.paymentRequest()?.user?.id == currentUserId;
+    return this.paymentRequest()?.account.id == this.authService.account()?.id;
   });
   protected readonly pageDescription = computed(() =>
     this.isPaymentRequestMode()
-      ? 'Revise a cobrança vinculada, ajuste a descrição se necessário e autorize a transferência.'
-      : 'Confirme o favorecido, informe o valor e adicione uma descrição se precisar de rastreabilidade adicional.',
+      ? 'Revise a cobrança vinculada e autorize a transferência.'
+      : 'Confirme o favorecido e informe o valor da transferência.',
   );
   protected readonly pageTitle = computed(() =>
     this.isPaymentRequestMode() ? 'Autorização de transferência' : 'Nova transferência',
   );
   protected readonly payeeName = computed(
-    () => this.paymentRequest()?.user?.name || this.payee()?.name || 'Conta protegida',
+    () => this.paymentRequest()?.account.name || this.payeeEmail() || 'Conta protegida',
   );
   protected readonly paymentRequestSnapshotSkeletonLabelWidths = ['10rem', '8rem', '8rem', '8rem'];
   protected readonly paymentRequestSnapshotSkeletonValueWidths = [
@@ -153,7 +147,7 @@ export class TransferCreatePage {
   protected readonly summaryCopy = computed(() =>
     this.isPaymentRequestMode()
       ? 'Valor, favorecido e identificador seguem bloqueados nesta etapa para evitar alterações manuais.'
-      : 'A conta favorecida fica travada nesta etapa. O valor e a descrição ainda podem ser ajustados antes do envio.',
+      : 'A conta favorecida fica travada nesta etapa. O valor ainda pode ser ajustado antes do envio.',
   );
   protected readonly summaryIntegrityLabel = computed(() =>
     this.isPaymentRequestMode() ? 'Valor e conta travados' : 'Conta travada, valor editável',
@@ -166,11 +160,11 @@ export class TransferCreatePage {
   );
   protected readonly transferStepDescription = computed(() =>
     this.isPaymentRequestMode()
-      ? 'Você pode registrar uma descrição curta para facilitar a rastreabilidade e a conciliação da operação.'
-      : 'Defina o valor e, se necessário, registre uma descrição curta para facilitar a rastreabilidade e a conciliação da operação.',
+      ? 'Autorize a liquidação com o valor e favorecido vinculados à cobrança.'
+      : 'Defina o valor e confirme a conta favorecida antes do envio.',
   );
   protected readonly transferStepTitle = computed(() =>
-    this.isPaymentRequestMode() ? 'Registrar descrição e concluir' : 'Informar valor e concluir',
+    this.isPaymentRequestMode() ? 'Revisar e concluir' : 'Informar valor e concluir',
   );
   protected readonly submitLabel = computed(() =>
     this.isSubmitting()
@@ -216,20 +210,20 @@ export class TransferCreatePage {
 
     this.formErrorMessage.set(null);
     this.isSubmitting.set(true);
-    const description = this.createTransferModel().description.trim();
 
     this.transferService
       .create({
-        payeeId,
-        value,
-        ...(description ? { description } : {}),
+        payeeAccountId: payeeId,
+        amount: value,
       })
       .subscribe({
-        next: (transfer) => {
-          this.router.navigate(['/transfer', transfer.id]);
+        next: () => {
+          this.router.navigate(['/transfer']);
         },
         error: ({ error }) => {
-          this.formErrorMessage.set(error.message || 'Não foi possível criar a transferência');
+          this.formErrorMessage.set(
+            httpErrorMessage(error, 'Não foi possível criar a transferência'),
+          );
           this.isSubmitting.set(false);
         },
       });
@@ -284,7 +278,6 @@ export class TransferCreatePage {
 
   private resetState(): void {
     this.createTransferForm().reset({
-      description: '',
       value: '',
     });
     this.formErrorMessage.set(null);
@@ -292,18 +285,18 @@ export class TransferCreatePage {
     this.isSubmitting.set(false);
     this.mode.set(null);
     this.pageErrorMessage.set(null);
-    this.payee.set(null);
+    this.payeeAccountId.set('');
     this.payeeEmail.set('');
     this.paymentRequest.set(null);
     this.paymentRequestId.set('');
   }
 
   private loadPayee(email: string, routeStateRequestId: number): void {
-    this.userService.findByEmail(email).subscribe({
-      next: (payee) => {
+    this.accountService.findIdByUserEmail(email).subscribe({
+      next: (payeeAccountId) => {
         if (routeStateRequestId != this.routeStateRequestId) return;
 
-        this.payee.set(payee);
+        this.payeeAccountId.set(payeeAccountId);
         this.isLoading.set(false);
       },
       error: ({ error, status }) => {
@@ -317,7 +310,7 @@ export class TransferCreatePage {
         this.pageErrorMessage.set(
           status == 404
             ? 'Usuário não encontrado'
-            : error.message || 'Não foi possível localizar esta conta',
+            : httpErrorMessage(error, 'Não foi possível localizar esta conta'),
         );
         this.isLoading.set(false);
       },
@@ -329,7 +322,7 @@ export class TransferCreatePage {
       next: (paymentRequest) => {
         if (routeStateRequestId != this.routeStateRequestId) return;
 
-        if (!paymentRequest.user?.id) {
+        if (!paymentRequest.account?.id) {
           this.pageErrorMessage.set('Não foi possível identificar o favorecido desta cobrança');
           this.isLoading.set(false);
           return;
@@ -349,7 +342,7 @@ export class TransferCreatePage {
         this.pageErrorMessage.set(
           status == 404
             ? 'Cobrança inexistente ou expirada'
-            : error.message || 'Não foi possível carregar esta cobrança',
+            : httpErrorMessage(error, 'Não foi possível carregar esta cobrança'),
         );
         this.isLoading.set(false);
       },
@@ -357,8 +350,8 @@ export class TransferCreatePage {
   }
 
   private resolvePayeeId(): string | null {
-    if (this.isPaymentRequestMode()) return this.paymentRequest()?.user?.id || null;
-    return this.payee()?.id || null;
+    if (this.isPaymentRequestMode()) return this.paymentRequest()?.account.id || null;
+    return this.payeeAccountId() || null;
   }
 
   private resolveTransferValue(): number | null {

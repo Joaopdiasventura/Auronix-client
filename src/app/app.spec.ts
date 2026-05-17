@@ -1,12 +1,13 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { EMPTY, Subject } from 'rxjs';
+import { EMPTY, of, Subject } from 'rxjs';
 import { configureAxe } from 'vitest-axe';
 import { vi } from 'vitest';
 import { NotificationEventType } from './core/enums/notification/notification-event-type.enum';
 import { NotificationStreamEvent } from './core/models/notification';
 import { User } from './core/models/user';
+import { AccountService } from './core/services/account/account.service';
 import { AuthService } from './core/services/auth/auth.service';
 import { NotificationService } from './core/services/notification/notification.service';
 import { ToastService } from './core/services/toast/toast.service';
@@ -25,24 +26,15 @@ describe('App', () => {
   let originalNotification: typeof Notification | undefined;
 
   const authService = {
-    data: signal<{
-      id: string;
-      email: string;
-      name: string;
-      balance: number;
-      createdAt: string;
-      updatedAt: string;
-    } | null>(null),
+    account: signal(createAccount()),
+    balance: vi.fn(() => authService.account()?.balance ?? 0),
+    data: signal<User | null>(null),
     isLoggedIn: vi.fn(() => authService.data() != null),
-    updateBalance: vi.fn((balance: number) => {
-      const user = authService.data();
-      if (!user) return;
+    updateAccount: vi.fn((account) => authService.account.set(account)),
+  };
 
-      authService.data.set({
-        ...user,
-        balance,
-      });
-    }),
+  const accountService = {
+    findCurrent: vi.fn(),
   };
 
   const notificationService = {
@@ -78,6 +70,7 @@ describe('App', () => {
       imports: [App],
       providers: [
         provideRouter([]),
+        { provide: AccountService, useValue: accountService },
         { provide: AuthService, useValue: authService },
         { provide: NotificationService, useValue: notificationService },
         { provide: ToastService, useValue: toastService },
@@ -94,6 +87,8 @@ describe('App', () => {
     });
 
     authService.data.set(null);
+    authService.account.set(createAccount());
+    accountService.findCurrent.mockReturnValue(of({ ...createAccount(), balance: 95000 }));
     toastService.toasts.set([]);
     vi.clearAllMocks();
     notifications$ = new Subject<NotificationStreamEvent>();
@@ -144,7 +139,7 @@ describe('App', () => {
     expect(notificationService.stop).toHaveBeenCalledTimes(2);
   });
 
-  it('updates the balance and shows a toast while the app is visible', async () => {
+  it('refreshes the account and shows a toast while the app is visible', async () => {
     authService.data.set(createUser());
 
     const fixture = TestBed.createComponent(App);
@@ -153,49 +148,14 @@ describe('App', () => {
     notifications$.next(createCompletedEvent());
     await fixture.whenStable();
 
-    expect(authService.updateBalance).toHaveBeenCalledWith(95000);
+    expect(accountService.findCurrent).toHaveBeenCalled();
+    expect(authService.updateAccount).toHaveBeenCalledWith({ ...createAccount(), balance: 95000 });
     expect(toastService.show).toHaveBeenCalledWith({
       id: '42',
       title: 'Transferência concluída',
-      message: `Pedido principal · ${formatCurrency(5000)}`,
+      message: `Operação liquidada · ${formatCurrency(5000)}`,
       route: ['/transfer', 'transfer-id'],
       variant: 'success',
-    });
-  });
-
-  it('falls back to a default description when the notification payload contains null', async () => {
-    authService.data.set(createUser());
-
-    const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
-
-    notifications$.next(createCompletedEvent(null));
-    await fixture.whenStable();
-
-    expect(toastService.show).toHaveBeenCalledWith({
-      id: '42',
-      title: 'Transferência concluída',
-      message: `Sem descrição informada · ${formatCurrency(5000)}`,
-      route: ['/transfer', 'transfer-id'],
-      variant: 'success',
-    });
-  });
-
-  it('includes the payer identity in pending transfer notifications', async () => {
-    authService.data.set(createUser());
-
-    const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
-
-    notifications$.next(createPendingEvent());
-    await fixture.whenStable();
-
-    expect(toastService.show).toHaveBeenCalledWith({
-      id: '41',
-      title: 'Transferência em processamento',
-      message: `Pedido principal · ${formatCurrency(5000)} · Pagador: João Silva`,
-      route: ['/transfer', 'transfer-id'],
-      variant: 'info',
     });
   });
 
@@ -212,23 +172,17 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
-    notifications$.next(createPendingEvent());
+    notifications$.next(createCompletedEvent());
     await fixture.whenStable();
 
     expect(toastService.show).not.toHaveBeenCalled();
     expect(MockBrowserNotification.instances).toHaveLength(1);
-    expect(MockBrowserNotification.instances[0].title).toBe('Transferência em processamento');
+    expect(MockBrowserNotification.instances[0].title).toBe('Transferência concluída');
   });
 
   it('has no critical accessibility violations in the authenticated shell', async () => {
-    authService.data.set({
-      id: 'user-id',
-      email: 'joao@auronix.com',
-      name: 'Joao Silva',
-      balance: 125000,
-      createdAt: '2026-03-29T00:00:00.000Z',
-      updatedAt: '2026-03-29T00:00:00.000Z',
-    });
+    authService.data.set(createUser());
+    authService.account.set({ ...createAccount(), balance: 125000 });
     notificationService.connect.mockReturnValue(EMPTY);
 
     const fixture = TestBed.createComponent(App);
@@ -241,35 +195,17 @@ describe('App', () => {
   });
 });
 
-function createCompletedEvent(description: string | null = 'Pedido principal'): NotificationStreamEvent {
+function createCompletedEvent(): NotificationStreamEvent {
   return {
     id: '42',
     type: NotificationEventType.TransferCompleted,
     data: {
-      transferId: 'transfer-id',
+      transactionId: 'transfer-id',
       amount: 5000,
+      payerAccountId: 'account-id',
+      payeeAccountId: 'payee-id',
       createdAt: '2026-03-29T00:00:00.000Z',
-      description,
-      balance: 95000,
-    },
-  };
-}
-
-function createPendingEvent(description: string | null = 'Pedido principal'): NotificationStreamEvent {
-  return {
-    id: '41',
-    type: NotificationEventType.TransferPending,
-    data: {
-      transferId: 'transfer-id',
-      amount: 5000,
-      createdAt: '2026-03-29T00:00:00.000Z',
-      description,
-      balance: 100000,
-      payer: {
-        id: 'payer-id',
-        email: 'joao@auronix.com',
-        name: 'João Silva',
-      },
+      type: 'transaction.completed',
     },
   };
 }
@@ -279,9 +215,19 @@ function createUser(): User {
     id: 'user-id',
     email: 'joao@auronix.com',
     name: 'Joao',
-    balance: 1000,
     createdAt: '2026-03-29T00:00:00.000Z',
-    updatedAt: '2026-03-29T00:00:00.000Z',
+  };
+}
+
+function createAccount(): {
+  id: string;
+  balance: number;
+  user: User;
+} {
+  return {
+    id: 'account-id',
+    balance: 1000,
+    user: createUser(),
   };
 }
 

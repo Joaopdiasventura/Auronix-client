@@ -3,7 +3,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of, Subject } from 'rxjs';
 import { vi } from 'vitest';
-import { TransferStatus } from '../../../core/enums/transfer/transfer-status.enum';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { TransferService } from '../../../core/services/transfer/transfer.service';
@@ -11,29 +10,46 @@ import { TransferDetailsPage } from './details-page';
 
 describe('TransferDetailsPage', () => {
   let fixture: ComponentFixture<TransferDetailsPage>;
-  let transferRefresh$: Subject<{ data: { transferId: string } }>;
+  let transferRefresh$: Subject<{ data: { transactionId: string } }>;
 
   const transferDetails = {
     id: 'transfer-id',
-    value: 5000,
-    description: 'Pedido principal',
-    status: 'completed',
-    failureReason: null,
-    completedAt: '2026-03-29T10:00:00.000Z',
+    amount: 5000,
+    payerBalanceBefore: 100000,
+    payerBalanceAfter: 95000,
+    payeeBalanceBefore: 120000,
+    payeeBalanceAfter: 125000,
     createdAt: '2026-03-29T09:58:00.000Z',
-    updatedAt: '2026-03-29T10:00:00.000Z',
-    payer: { id: 'user-id', name: 'Joao' },
-    payee: { id: 'payee-id', name: 'Maria' },
+    payer: {
+      id: 'account-id',
+      email: 'joao@auronix.com',
+      name: 'Joao',
+      createdAt: '2026-03-29T00:00:00.000Z',
+    },
+    payee: {
+      id: 'payee-id',
+      email: 'maria@auronix.com',
+      name: 'Maria',
+      createdAt: '2026-03-29T00:00:00.000Z',
+    },
   };
 
   const authService = {
+    account: signal({
+      id: 'account-id',
+      balance: 100000,
+      user: {
+        id: 'user-id',
+        email: 'joao@auronix.com',
+        name: 'Joao',
+        createdAt: '2026-03-29T00:00:00.000Z',
+      },
+    }),
     data: signal({
       id: 'user-id',
       email: 'joao@auronix.com',
       name: 'Joao',
-      balance: 100000,
       createdAt: '2026-03-29T00:00:00.000Z',
-      updatedAt: '2026-03-29T00:00:00.000Z',
     }),
   };
 
@@ -79,12 +95,12 @@ describe('TransferDetailsPage', () => {
     transferService.findById.mockReturnValue(of(transferDetails));
   });
 
-  it('renders the transfer description and status', async () => {
+  it('renders the transfer summary and status', async () => {
     await createComponent();
 
     const nativeElement = fixture.nativeElement as HTMLElement;
 
-    expect(nativeElement.textContent).toContain('Pedido principal');
+    expect(nativeElement.textContent).toContain('Transferência enviada');
     expect(nativeElement.textContent).toContain('Concluída');
   });
 
@@ -110,7 +126,7 @@ describe('TransferDetailsPage', () => {
 
     expect(nativeElement.querySelector('app-skeleton-timeline')).toBeNull();
     expect(nativeElement.querySelector('.page-shell')?.hasAttribute('aria-busy')).toBe(false);
-    expect(nativeElement.textContent).toContain('Pedido principal');
+    expect(nativeElement.textContent).toContain('Transferência enviada');
   });
 
   it('keeps the current transfer visible during matching background refreshes', async () => {
@@ -123,7 +139,7 @@ describe('TransferDetailsPage', () => {
 
     transferRefresh$.next({
       data: {
-        transferId: 'transfer-id',
+        transactionId: 'transfer-id',
       },
     });
     fixture.detectChanges();
@@ -131,42 +147,38 @@ describe('TransferDetailsPage', () => {
     const nativeElement = fixture.nativeElement as HTMLElement;
 
     expect(transferService.findById).toHaveBeenCalledTimes(2);
-    expect(nativeElement.textContent).toContain('Pedido principal');
+    expect(nativeElement.textContent).toContain('Transferência enviada');
     expect(nativeElement.querySelector('app-skeleton-timeline')).toBeNull();
     expect(nativeElement.querySelector('.page-shell')?.hasAttribute('aria-busy')).toBe(false);
   });
 
-  it('renders a fallback when the transfer has no description', async () => {
+  it('renders incoming transfer copy', async () => {
     await createComponent();
 
     fixture.componentInstance['transfer'].set({
       id: 'transfer-id',
-      value: 5000,
-      status: TransferStatus.Completed,
-      failureReason: null,
-      completedAt: '2026-03-29T10:00:00.000Z',
+      amount: 5000,
+      payerBalanceBefore: 100000,
+      payerBalanceAfter: 95000,
+      payeeBalanceBefore: 120000,
+      payeeBalanceAfter: 125000,
       createdAt: '2026-03-29T09:58:00.000Z',
-      updatedAt: '2026-03-29T10:00:00.000Z',
       payer: {
-        id: 'user-id',
+        id: 'payer-id',
         email: 'joao@auronix.com',
         name: 'Joao',
-        balance: 100000,
         createdAt: '2026-03-29T00:00:00.000Z',
-        updatedAt: '2026-03-29T00:00:00.000Z',
       },
       payee: {
-        id: 'payee-id',
+        id: 'account-id',
         email: 'maria@auronix.com',
         name: 'Maria',
-        balance: 120000,
         createdAt: '2026-03-29T00:00:00.000Z',
-        updatedAt: '2026-03-29T00:00:00.000Z',
       },
     });
     fixture.componentInstance['isLoading'].set(false);
     fixture.detectChanges();
 
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Sem descrição informada');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Transferência recebida');
   });
 });

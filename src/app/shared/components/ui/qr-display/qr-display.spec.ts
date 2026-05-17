@@ -30,7 +30,7 @@ describe('QrDisplay', () => {
     fixture.componentRef.setInput('value', 'joao@auronix.com');
     fixture.componentRef.setInput('payload', `${origin}/transfer/key?email=joao%40auronix.com`);
     fixture.detectChanges();
-    await fixture.whenStable();
+    await Promise.resolve();
     fixture.detectChanges();
 
     const nativeElement = fixture.nativeElement as HTMLElement;
@@ -49,7 +49,7 @@ describe('QrDisplay', () => {
     fixture.componentRef.setInput('title', 'QR da conta');
     fixture.componentRef.setInput('value', '');
     fixture.detectChanges();
-    await fixture.whenStable();
+    await Promise.resolve();
     fixture.detectChanges();
 
     expect((fixture.nativeElement as HTMLElement).querySelector('.alert')).not.toBeNull();

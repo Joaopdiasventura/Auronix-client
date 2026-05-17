@@ -75,7 +75,7 @@
 
             <div class="readonly-field">
               <span class="readonly-field__label">Conta</span>
-              <strong class="readonly-field__value">{{ user()?.id || '-' }}</strong>
+              <strong class="readonly-field__value">{{ account()?.id || '-' }}</strong>
             </div>
 
             <div class="readonly-field">
@@ -83,10 +83,6 @@
               <strong class="readonly-field__value">{{ userCreatedAt() }}</strong>
             </div>
 
-            <div class="readonly-field">
-              <span class="readonly-field__label">Atualizada em</span>
-              <strong class="readonly-field__value">{{ userUpdatedAt() }}</strong>
-            </div>
           </div>
         </div>
 

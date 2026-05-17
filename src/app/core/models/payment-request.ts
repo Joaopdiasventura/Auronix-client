@@ -1,11 +1,8 @@
-export interface PaymentRequestUser {
-  id: string;
-  name: string;
-}
+import { AccountSummary } from './account';
 
 export interface PaymentRequest {
   id: string;
   value: number;
-  user?: PaymentRequestUser | null;
+  account: AccountSummary;
   createdAt: string;
 }

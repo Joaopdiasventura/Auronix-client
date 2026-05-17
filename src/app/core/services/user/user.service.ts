@@ -31,10 +31,6 @@ export class UserService {
     return this.http.get<User>(this.apiUrl);
   }
 
-  public findByEmail(email: string): Observable<User> {
-    return this.http.get<User>(this.apiUrl + '/' + encodeURIComponent(email));
-  }
-
   public update(updateUserDto: UpdateUserDto): Observable<void> {
     return this.http.patch<void>(this.apiUrl, updateUserDto);
   }

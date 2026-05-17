@@ -69,10 +69,7 @@
               <h2 class="details-summary__amount">{{ amountLabel() }}</h2>
             </div>
 
-            <app-status-chip
-              [label]="statusLabel(currentTransfer.status)"
-              [tone]="statusTone(currentTransfer.status)"
-            />
+            <span class="section-kicker">Concluída</span>
           </div>
 
           <p class="section-copy">{{ resolveDescription(currentTransfer) }}</p>
@@ -111,9 +108,9 @@
             </div>
 
             <div class="readonly-field">
-              <span class="readonly-field__label">Atualizada em</span>
+              <span class="readonly-field__label">Saldo após envio</span>
               <strong class="readonly-field__value">{{
-                formatDate(currentTransfer.updatedAt)
+                formatMoney(currentTransfer.payerBalanceAfter)
               }}</strong>
             </div>
           </div>
@@ -133,11 +130,6 @@
             }
           </div>
 
-          @if (currentTransfer.failureReason) {
-            <div class="alert alert--error">
-              <p>{{ currentTransfer.failureReason }}</p>
-            </div>
-          }
         </article>
       }
     </section>

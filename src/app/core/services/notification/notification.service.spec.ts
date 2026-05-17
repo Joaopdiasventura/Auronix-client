@@ -29,29 +29,28 @@ describe('NotificationService', () => {
     const eventPromise = firstValueFrom(service.connect());
     eventSource = MockEventSource.instances[0];
 
-    eventSource.emit('transfer.completed', {
+    eventSource.emit('transaction.completed', {
       data: JSON.stringify({
-        type: 'transfer.completed',
-        data: {
-          transferId: 'transfer-id',
-          amount: 5000,
-          createdAt: '2026-03-29T00:00:00.000Z',
-          description: 'Pedido principal',
-          balance: 95000,
-        },
+        transactionId: 'transfer-id',
+        amount: 5000,
+        payerAccountId: 'payer-account-id',
+        payeeAccountId: 'payee-account-id',
+        createdAt: '2026-03-29T00:00:00.000Z',
+        type: 'transaction.completed',
       }),
       lastEventId: '42',
     });
 
     await expect(eventPromise).resolves.toEqual({
       id: '42',
-      type: 'transfer.completed',
+      type: 'transaction.completed',
       data: {
-        transferId: 'transfer-id',
+        transactionId: 'transfer-id',
         amount: 5000,
+        payerAccountId: 'payer-account-id',
+        payeeAccountId: 'payee-account-id',
         createdAt: '2026-03-29T00:00:00.000Z',
-        description: 'Pedido principal',
-        balance: 95000,
+        type: 'transaction.completed',
       },
     });
   });
