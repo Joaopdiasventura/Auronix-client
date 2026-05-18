@@ -1,5 +1,5 @@
 <section class="page-shell" [attr.aria-busy]="shouldShowSkeleton() ? 'true' : null">
-  <app-page-header [description]="pageDescription()" kicker="Transferências" [title]="pageTitle()">
+  <app-page-header kicker="Transferências" [title]="pageTitle()">
     @if (isPaymentRequestMode()) {
       <a
         class="button button--ghost"
@@ -91,7 +91,6 @@
           <div class="authorization-form__copy">
             <span class="section-kicker">Confirmação final</span>
             <h2 class="section-title">{{ transferStepTitle() }}</h2>
-            <p class="section-copy">{{ transferStepDescription() }}</p>
           </div>
 
           @if (formErrorMessage()) {
@@ -132,7 +131,7 @@
 
           @if (isEmailMode()) {
             <app-input
-              hint="Use vírgula ou ponto decimal. O mínimo operacional é R$ 0,01."
+              hint="Mínimo R$ 0,01."
               inputMode="decimal"
               label="Valor da transferência"
               name="value"

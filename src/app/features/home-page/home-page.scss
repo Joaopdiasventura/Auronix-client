@@ -17,8 +17,9 @@
 .dashboard-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
-  gap: var(--panel-gap);
+  gap: var(--section-gap);
   align-items: end;
+  min-height: 16rem;
 }
 
 .dashboard-hero__body {
@@ -66,10 +67,10 @@
 
 .dashboard-hero__value {
   color: var(--color-text);
-  font-size: clamp(2.8rem, 6vw, 4.4rem);
+  font-size: clamp(3rem, 6vw, 4.8rem);
   font-weight: 600;
   line-height: 0.96;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
 }
 
 .dashboard-hero__actions {
@@ -77,6 +78,10 @@
   gap: var(--stack-sm);
   flex-wrap: wrap;
   justify-content: flex-start;
+}
+
+.dashboard-hero__actions .button {
+  flex: 1 1 8rem;
 }
 
 .dashboard-metrics {
@@ -105,7 +110,7 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.875rem;
   align-items: center;
-  padding: 0.9375rem 0;
+  padding: 0.875rem 0;
   border-top: 1px solid var(--color-stroke);
   transition: background-color var(--motion-base);
 }

@@ -9,7 +9,8 @@
 }
 
 .request-layout {
-  grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem);
+  grid-template-columns: minmax(0, 30rem);
+  justify-content: center;
 }
 
 .request-created {
@@ -17,7 +18,6 @@
 }
 
 .request-form,
-.request-briefing,
 .receipt-card,
 .request-qr-card,
 .share-card {
@@ -36,30 +36,6 @@
 .share-card__header {
   display: grid;
   gap: var(--stack-sm);
-  padding-bottom: var(--stack-sm);
-  border-bottom: 1px solid var(--color-stroke);
-}
-
-.request-note {
-  display: grid;
-  gap: var(--stack-sm);
-  padding: 0.125rem 0 0.125rem 1rem;
-  border-left: 2px solid var(--color-brand);
-}
-
-.request-note strong {
-  color: var(--color-text);
-  font-weight: 600;
-}
-
-.request-note .section-kicker {
-  color: var(--color-brand);
-}
-
-.request-note p {
-  margin: 0;
-  color: var(--color-text-muted);
-  line-height: 1.55;
 }
 
 .share-card__summary {
@@ -71,11 +47,11 @@
   font-size: clamp(2.4rem, 5vw, 3.8rem);
   font-weight: 600;
   line-height: 0.98;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
 }
 
 .receipt-card {
-  border-top: 2px solid rgb(184 154 102 / 0.58);
+  border-color: rgb(210 173 97 / 0.28);
 }
 
 .receipt-card__actions {
@@ -98,19 +74,6 @@
   background: var(--color-surface-2);
   color: var(--color-text);
   line-height: 1.35;
-}
-
-.share-steps {
-  display: grid;
-  gap: var(--stack-sm);
-  margin: 0;
-  padding: 0.875rem 0 0 1.1rem;
-  border-top: 1px solid var(--color-stroke);
-  color: var(--color-text-muted);
-}
-
-.share-steps li {
-  line-height: 1.55;
 }
 
 @media (max-width: 960px) {

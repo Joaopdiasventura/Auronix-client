@@ -21,7 +21,7 @@
   padding: 1rem;
   border: 1px solid var(--color-stroke);
   border-radius: var(--radius-md);
-  background: var(--color-surface-2);
+  background: #0d1014;
 }
 
 .qr-display__placeholder {
@@ -36,7 +36,7 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgb(255 255 255 / 0.06) 50%,
+    rgb(255 255 255 / 0.05) 50%,
     transparent 100%
   );
   animation: qr-placeholder-shimmer 1.2s linear infinite;

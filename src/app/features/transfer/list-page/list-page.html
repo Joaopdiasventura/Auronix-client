@@ -1,6 +1,5 @@
 <section class="page-shell" [attr.aria-busy]="shouldShowSkeleton() ? 'true' : null">
   <app-page-header
-    description="Extrato paginado com leitura densa de valor, natureza, contraparte e horário."
     kicker="Transferências"
     title="Extrato da conta"
   >
@@ -56,9 +55,6 @@
         <div class="history-panel__copy">
           <span class="section-kicker">Página {{ page() + 1 }}</span>
           <h2 class="section-title">Movimentações liquidadas</h2>
-          <p class="section-copy">
-            Cada linha preserva o contexto da operação com leitura direta de natureza e valor.
-          </p>
         </div>
 
         <div class="history-toolbar__actions">
@@ -113,9 +109,9 @@
         </div>
       } @else {
         <app-empty-state
-          description="As transferências concluídas passam a aparecer aqui assim que a primeira cobrança for paga."
+          description="Faça uma transferência ou pague uma cobrança para iniciar o extrato."
           eyebrow="Extrato"
-          title="Seu extrato ainda está vazio."
+          title="Sem movimentações"
         />
       }
     }

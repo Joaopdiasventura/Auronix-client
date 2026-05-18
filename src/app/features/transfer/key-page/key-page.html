@@ -1,6 +1,5 @@
 <section class="page-shell">
   <app-page-header
-    description="Digite uma chave, cole um link do app ou leia um QR code para seguir ao fluxo correto de transferência."
     kicker="Transferências"
     title="Transferir"
   >
@@ -10,12 +9,8 @@
   <section class="transfer-key-layout">
     <form class="transfer-key-form surface-card" (submit)="submit($event)" novalidate>
       <div class="transfer-key-form__copy">
-        <span class="section-kicker">Entrada única</span>
-        <h2 class="section-title">Cole um link, e-mail ou identificador de cobrança</h2>
-        <p class="section-copy">
-          O fluxo reconhece automaticamente a entrada e abre a transferência direta ou a confirmação
-          vinculada à cobrança.
-        </p>
+        <span class="section-kicker">Chave</span>
+        <h2 class="section-title">Informe e-mail, link ou cobrança</h2>
       </div>
 
       @if (errorMessage()) {
@@ -26,10 +21,10 @@
 
       <app-input
         autocomplete="off"
-        hint="Aceita link do app, e-mail da conta ou identificador UUID de cobrança."
+        hint="Aceita e-mail, link do app ou identificador de cobrança."
         label="Chave de transferência"
         name="key"
-        placeholder="https://app.auronix.com/transfer/key?... ou maria@empresa.com"
+        placeholder="maria@empresa.com"
         [formField]="transferKeyForm.key"
       />
 

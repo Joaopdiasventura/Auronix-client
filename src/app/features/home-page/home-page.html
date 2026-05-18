@@ -1,6 +1,5 @@
 <section class="page-shell" [attr.aria-busy]="shouldShowSkeleton() ? 'true' : null">
   <app-page-header
-    description="Resumo da conta com saldo, fluxo recente e os próximos passos operacionais."
     kicker="Painel"
     [title]="'Olá, ' + userName()"
   />
@@ -38,10 +37,6 @@
       <div class="dashboard-hero__body">
         <span class="section-kicker">Saldo disponível</span>
         <h2 class="dashboard-hero__value">{{ balanceLabel() }}</h2>
-        <p class="section-copy">
-          Use o saldo como referência para emitir cobranças, validar cobranças e acompanhar o fluxo
-          mais recente da conta.
-        </p>
       </div>
 
       <div class="dashboard-hero__aside">
@@ -53,7 +48,7 @@
 
           <div class="dashboard-hero__fact">
             <span>Leitura</span>
-            <strong>Saldo e extrato recente</strong>
+            <strong>Atualizada agora</strong>
           </div>
         </div>
 
@@ -113,9 +108,6 @@
           <div class="dashboard-ledger__copy">
             <span class="section-kicker">Extrato recente</span>
             <h2 class="section-title">Últimas transferências</h2>
-            <p class="section-copy">
-              Entradas e saídas com leitura densa de contraparte, data e valor.
-            </p>
           </div>
 
           <a class="text-link" routerLink="/transfer">Ver extrato completo</a>
@@ -147,9 +139,9 @@
           </div>
         } @else {
           <app-empty-state
-            description="Assim que uma cobrança for paga, as movimentações mais recentes aparecem aqui."
+            description="As próximas movimentações aparecerão aqui."
             eyebrow="Extrato"
-            title="Nenhuma transferência concluída."
+            title="Sem movimentações"
           >
             <a class="button button--secondary" routerLink="/transfer/key">Transferir</a>
             <a class="button button--primary" routerLink="/payment-request/create">

@@ -1,6 +1,5 @@
 <section class="page-shell" [attr.aria-busy]="shouldShowSkeleton() ? 'true' : null">
   <app-page-header
-    description="Resumo da operação com valor, contraparte, identificador e linha do tempo."
     kicker="Transferências"
     title="Detalhe da transferência"
   >
@@ -65,14 +64,12 @@
         <article class="details-summary surface-card">
           <div class="details-summary__top">
             <div>
-              <span class="section-kicker">Resumo da operação</span>
+              <span class="section-kicker">{{ resolveDescription(currentTransfer) }}</span>
               <h2 class="details-summary__amount">{{ amountLabel() }}</h2>
             </div>
 
             <span class="section-kicker">Concluída</span>
           </div>
-
-          <p class="section-copy">{{ resolveDescription(currentTransfer) }}</p>
 
           <div class="counterparty-grid">
             <div class="readonly-field">
@@ -89,7 +86,6 @@
           <div class="details-note">
             <span class="section-kicker">Contraparte</span>
             <strong>{{ resolveCounterpartyLabel(currentTransfer) }}</strong>
-            <span>Valor, contraparte e horário permanecem vinculados a esta operação.</span>
           </div>
         </article>
 

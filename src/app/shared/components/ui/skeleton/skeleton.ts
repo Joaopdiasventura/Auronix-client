@@ -24,7 +24,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
           linear-gradient(
             90deg,
             rgb(255 255 255 / 0.03),
-            rgb(255 255 255 / 0.08),
+            rgb(255 255 255 / 0.07),
             rgb(255 255 255 / 0.03)
           ),
           var(--color-surface-3);

@@ -9,36 +9,36 @@
   min-height: 1.5625rem;
   padding: 0.1875rem 0.5rem;
   border: 1px solid var(--color-stroke);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   background: rgb(255 255 255 / 0.02);
   color: var(--color-text-soft);
   font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   line-height: 1.1;
   text-transform: uppercase;
 }
 
 .status-chip--success {
-  border-color: rgb(98 168 116 / 0.28);
-  background: rgb(98 168 116 / 0.1);
-  color: #9ad4a4;
+  border-color: rgb(100 194 133 / 0.28);
+  background: rgb(100 194 133 / 0.1);
+  color: #a9e8ba;
 }
 
 .status-chip--danger {
-  border-color: rgb(194 111 101 / 0.28);
-  background: rgb(194 111 101 / 0.1);
-  color: #f0aba2;
+  border-color: rgb(239 129 117 / 0.28);
+  background: rgb(239 129 117 / 0.1);
+  color: #ffbeb7;
 }
 
 .status-chip--warning {
-  border-color: rgb(184 154 102 / 0.28);
-  background: rgb(184 154 102 / 0.1);
-  color: #d8bb88;
+  border-color: rgb(210 173 97 / 0.28);
+  background: rgb(210 173 97 / 0.1);
+  color: var(--color-brand-strong);
 }
 
 .status-chip--info {
-  border-color: rgb(107 143 190 / 0.28);
-  background: rgb(107 143 190 / 0.1);
-  color: #a7bfd9;
+  border-color: rgb(130 168 232 / 0.28);
+  background: rgb(130 168 232 / 0.1);
+  color: #b9cdf2;
 }

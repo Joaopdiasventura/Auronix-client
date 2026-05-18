@@ -84,17 +84,6 @@ export class PaymentRequestDetailsPage {
   protected readonly shouldShowSkeleton = computed(
     () => this.isLoading() && this.paymentRequest() == null,
   );
-  protected readonly summaryCopy = computed(() => {
-    if (this.canCreateTransfer()) {
-      return 'Se o identificador e o valor coincidirem com o combinado, siga para a autorização da transferência.';
-    }
-
-    if (this.isOwnPaymentRequest()) {
-      return 'Esta cobrança pertence à sua conta. Compartilhe o link com quem vai realizar a transferência.';
-    }
-
-    return 'Use estes dados para conferir se a cobrança recebida corresponde ao valor esperado.';
-  });
 
   public constructor() {
     if (this.authService.isLoggedIn()) {

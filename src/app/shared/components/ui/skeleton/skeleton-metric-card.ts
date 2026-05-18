@@ -23,11 +23,10 @@ import { Skeleton } from './skeleton';
         align-content: start;
         gap: var(--stack-xs);
         min-height: 100%;
-        padding: 0.9375rem 1rem;
+        padding: 0.875rem 0.9375rem;
         border: 1px solid var(--color-stroke);
-        border-top: 2px solid var(--color-stroke-strong);
         border-radius: var(--radius-md);
-        background: var(--color-surface-2);
+        background: var(--color-surface-1);
       }
     `,
   ],

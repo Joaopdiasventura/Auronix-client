@@ -1,5 +1,5 @@
 <section class="page-shell">
-  <app-page-header [description]="pageDescription()" kicker="QR code" [title]="pageTitle()">
+  <app-page-header kicker="QR code" [title]="pageTitle()">
     @if (!errorMessage()) {
       <a class="button button--ghost" pageHeaderActions [routerLink]="backLink()">
         {{ backLabel() }}
@@ -31,7 +31,7 @@
 
       <aside class="qr-page-summary surface-card">
         <span class="section-kicker">Apresentação</span>
-        <h2 class="section-title">Visualização dedicada para leitura rápida</h2>
+        <h2 class="section-title">Leitura rápida</h2>
         <p class="section-copy">{{ helperCopy() }}</p>
 
         <div class="readonly-grid">

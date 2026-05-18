@@ -27,7 +27,7 @@
 }
 
 .request-summary--payable {
-  border-top: 2px solid rgb(184 154 102 / 0.58);
+  border-color: rgb(210 173 97 / 0.28);
 }
 
 .request-summary__top {
@@ -44,7 +44,7 @@
   font-size: clamp(2.5rem, 5vw, 3.9rem);
   font-weight: 600;
   line-height: 0.98;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
 }
 
 .request-summary__note {

@@ -24,7 +24,6 @@ import { formatCurrency } from './shared/utils/format-currency';
 interface WorkspaceNavigationItem {
   ariaLabel: string;
   exact: boolean;
-  helper: string;
   icon: 'dashboard' | 'payment-request' | 'profile' | 'transfer';
   label: string;
   mobileLabel: string;
@@ -35,7 +34,6 @@ const WORKSPACE_NAVIGATION: WorkspaceNavigationItem[] = [
   {
     ariaLabel: 'Abrir painel da conta',
     exact: true,
-    helper: 'Saldo, fluxo da conta e atalhos principais',
     icon: 'dashboard',
     label: 'Painel',
     mobileLabel: 'Painel',
@@ -44,7 +42,6 @@ const WORKSPACE_NAVIGATION: WorkspaceNavigationItem[] = [
   {
     ariaLabel: 'Abrir cobranças',
     exact: false,
-    helper: 'Emissão, validação e compartilhamento',
     icon: 'payment-request',
     label: 'Cobranças',
     mobileLabel: 'Cobranças',
@@ -53,7 +50,6 @@ const WORKSPACE_NAVIGATION: WorkspaceNavigationItem[] = [
   {
     ariaLabel: 'Abrir transferências',
     exact: false,
-    helper: 'Extrato, autorizações e detalhes',
     icon: 'transfer',
     label: 'Transferências',
     mobileLabel: 'Transfer.',
@@ -62,7 +58,6 @@ const WORKSPACE_NAVIGATION: WorkspaceNavigationItem[] = [
   {
     ariaLabel: 'Abrir perfil da conta',
     exact: false,
-    helper: 'Dados da conta e preferências',
     icon: 'profile',
     label: 'Perfil',
     mobileLabel: 'Perfil',

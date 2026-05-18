@@ -5,16 +5,16 @@
 .empty-state {
   display: grid;
   gap: var(--stack-sm);
-  padding: 1rem 0;
+  padding: 0.875rem 0;
   border-top: 1px solid var(--color-stroke);
   background: none;
 }
 
 .empty-state__eyebrow {
-  color: var(--color-brand);
+  color: var(--color-brand-strong);
   font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -29,7 +29,7 @@
   margin: 0;
   color: var(--color-text-muted);
   font-size: 0.9rem;
-  line-height: 1.55;
+  line-height: 1.45;
 }
 
 .empty-state__actions {

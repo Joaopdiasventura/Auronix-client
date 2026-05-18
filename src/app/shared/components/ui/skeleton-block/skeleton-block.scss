@@ -8,7 +8,7 @@
   padding: 1rem;
   border: 1px solid var(--color-stroke);
   border-radius: var(--radius-md);
-  background: var(--color-surface-2);
+  background: var(--color-surface-1);
 }
 
 .skeleton-block__line,
@@ -16,7 +16,7 @@
   position: relative;
   overflow: hidden;
   border-radius: var(--radius-sm);
-  background: rgb(255 255 255 / 0.05);
+  background: rgb(255 255 255 / 0.04);
 }
 
 .skeleton-block__line::after,
@@ -25,7 +25,7 @@
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.08), transparent);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.07), transparent);
   animation: skeleton-shimmer 1.25s ease-in-out infinite;
 }
 

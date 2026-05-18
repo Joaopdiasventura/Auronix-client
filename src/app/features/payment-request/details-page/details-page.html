@@ -1,6 +1,5 @@
 <section class="page-shell" [attr.aria-busy]="shouldShowSkeleton() ? 'true' : null">
   <app-page-header
-    description="Conferência da cobrança compartilhada antes da autorização da transferência."
     kicker="Cobranças"
     title="Validação da cobrança"
   />
@@ -91,15 +90,9 @@
             <app-status-chip [label]="availabilityLabel()" [tone]="availabilityTone()" />
           </div>
 
-          <p class="section-copy">{{ summaryCopy() }}</p>
-
           <div class="request-summary__note">
-            <span class="section-kicker">Integridade</span>
-            <strong>Handoff seguro</strong>
-            <span
-              >Valor, identificador e favorecido seguem vinculados a esta cobrança até a autorização
-              final.</span
-            >
+            <span class="section-kicker">Favorecido</span>
+            <strong>{{ requesterName() }}</strong>
           </div>
 
           <div class="action-row">
@@ -143,7 +136,7 @@
               </div>
 
               <div class="readonly-field">
-                <span class="readonly-field__label">Status operacional</span>
+                <span class="readonly-field__label">Status</span>
                 <strong class="readonly-field__value">{{ availabilityLabel() }}</strong>
               </div>
             </div>
@@ -151,11 +144,7 @@
 
           <article class="request-qr-card surface-card">
             <span class="section-kicker">QR da cobrança</span>
-            <h2 class="section-title">Abrir QR em tela dedicada</h2>
-            <p class="section-copy">
-              Abra uma visualização exclusiva do QR para apresentar a entrada universal desta
-              cobrança.
-            </p>
+            <h2 class="section-title">QR para pagamento</h2>
 
             <div class="readonly-grid">
               <div class="readonly-field">

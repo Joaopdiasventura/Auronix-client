@@ -35,13 +35,8 @@ export class QrDisplayPage {
   });
   protected readonly helperCopy = computed(() =>
     this.mode() == 'paymentRequest'
-      ? 'Apresente este QR para abrir a cobrança no fluxo de transferência, dentro ou fora do app.'
-      : 'Use esta tela para apresentar ou baixar um QR que abre a transferência para o e-mail atual.',
-  );
-  protected readonly pageDescription = computed(() =>
-    this.mode() == 'paymentRequest'
-      ? 'Exibição dedicada da entrada universal da cobrança para leitura por câmera ou compartilhamento visual.'
-      : 'Exibição dedicada da entrada universal da conta para leitura por câmera ou compartilhamento visual.',
+      ? 'Apresente este QR para abrir a cobrança.'
+      : 'Apresente este QR para receber por e-mail.',
   );
   protected readonly pageTitle = computed(() =>
     this.mode() == 'paymentRequest' ? 'QR code da cobrança' : 'QR code da conta',

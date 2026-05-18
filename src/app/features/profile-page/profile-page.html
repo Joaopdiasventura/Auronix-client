@@ -1,6 +1,5 @@
 <section class="page-shell">
   <app-page-header
-    description="Gerencie seus dados principais, acompanhe informações da conta e encerre a sessão quando necessário."
     kicker="Perfil"
     title="Dados da conta"
   />
@@ -21,10 +20,7 @@
     <form class="profile-form surface-card" (submit)="save($event)" novalidate>
       <div class="profile-form__copy">
         <span class="section-kicker">Informações principais</span>
-        <h2 class="section-title">Atualize nome e e-mail da conta</h2>
-        <p class="section-copy">
-          Esses dados são usados para identificação da conta e leitura dos fluxos financeiros.
-        </p>
+        <h2 class="section-title">Nome e e-mail</h2>
       </div>
 
       <app-input
@@ -88,9 +84,6 @@
 
         <div class="profile-summary__section">
           <span class="section-kicker">Sessão</span>
-          <p class="section-copy">
-            Se precisar trocar de conta ou encerrar a sessão, use a ação abaixo.
-          </p>
           <button
             class="button button--ghost button--block"
             type="button"
@@ -108,11 +101,7 @@
       @if (user()?.email) {
         <article class="profile-qr-card surface-card">
           <span class="section-kicker">QR da conta</span>
-          <h2 class="section-title">Abrir QR da conta em tela dedicada</h2>
-          <p class="section-copy">
-            Use uma tela dedicada para apresentar ou baixar um QR que abre a transferência para a
-            conta atual.
-          </p>
+          <h2 class="section-title">Receber por QR</h2>
 
           <div class="readonly-grid">
             <div class="readonly-field">

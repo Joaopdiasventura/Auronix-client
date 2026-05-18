@@ -117,11 +117,6 @@ export class TransferCreatePage {
 
     return this.paymentRequest()?.account.id == this.authService.account()?.id;
   });
-  protected readonly pageDescription = computed(() =>
-    this.isPaymentRequestMode()
-      ? 'Revise a cobrança vinculada e autorize a transferência.'
-      : 'Confirme o favorecido e informe o valor da transferência.',
-  );
   protected readonly pageTitle = computed(() =>
     this.isPaymentRequestMode() ? 'Autorização de transferência' : 'Nova transferência',
   );
@@ -143,25 +138,6 @@ export class TransferCreatePage {
   );
   protected readonly shouldShowSkeleton = computed(
     () => this.isLoading() && !this.hasResolvedTarget(),
-  );
-  protected readonly summaryCopy = computed(() =>
-    this.isPaymentRequestMode()
-      ? 'Valor, favorecido e identificador seguem bloqueados nesta etapa para evitar alterações manuais.'
-      : 'A conta favorecida fica travada nesta etapa. O valor ainda pode ser ajustado antes do envio.',
-  );
-  protected readonly summaryIntegrityLabel = computed(() =>
-    this.isPaymentRequestMode() ? 'Valor e conta travados' : 'Conta travada, valor editável',
-  );
-  protected readonly summaryKicker = computed(() =>
-    this.isPaymentRequestMode() ? 'Cobrança validada' : 'Favorecido identificado',
-  );
-  protected readonly summaryLabel = computed(() =>
-    this.isPaymentRequestMode() ? this.formattedValue() : this.payeeName(),
-  );
-  protected readonly transferStepDescription = computed(() =>
-    this.isPaymentRequestMode()
-      ? 'Autorize a liquidação com o valor e favorecido vinculados à cobrança.'
-      : 'Defina o valor e confirme a conta favorecida antes do envio.',
   );
   protected readonly transferStepTitle = computed(() =>
     this.isPaymentRequestMode() ? 'Revisar e concluir' : 'Informar valor e concluir',

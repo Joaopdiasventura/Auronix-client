@@ -8,7 +8,7 @@
   padding: 1rem;
   border: 1px solid var(--color-stroke);
   border-radius: var(--radius-md);
-  background: var(--color-surface-2);
+  background: var(--color-surface-1);
 }
 
 .activity-chart__header {
@@ -17,10 +17,10 @@
 }
 
 .activity-chart__kicker {
-  color: var(--color-brand);
+  color: var(--color-brand-strong);
   font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 

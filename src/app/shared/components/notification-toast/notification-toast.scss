@@ -22,19 +22,19 @@
   border-radius: var(--radius-md);
   border: 1px solid var(--color-stroke);
   background: var(--color-surface-1);
-  box-shadow: var(--shadow-1);
+  box-shadow: var(--shadow-2);
 }
 
 .toast-card--info {
-  border-color: rgb(91 141 239 / 0.28);
+  border-color: rgb(130 168 232 / 0.28);
 }
 
 .toast-card--success {
-  border-color: rgb(61 175 124 / 0.28);
+  border-color: rgb(100 194 133 / 0.28);
 }
 
 .toast-card--error {
-  border-color: rgb(212 107 93 / 0.28);
+  border-color: rgb(239 129 117 / 0.28);
 }
 
 .toast-copy {
@@ -85,13 +85,13 @@
 }
 
 .toast-button--primary {
-  border-color: rgb(200 168 106 / 0.35);
+  border-color: rgb(232 201 130 / 0.24);
   background: var(--color-brand);
-  color: #0c1318;
+  color: #080a0d;
 }
 
 .toast-button--primary:hover {
-  border-color: rgb(204 176 123 / 0.38);
+  border-color: rgb(232 201 130 / 0.36);
   background: var(--color-brand-strong);
 }
 

@@ -8,10 +8,10 @@
 }
 
 .input-label {
-  color: var(--color-text-muted);
+  color: var(--color-text-soft);
   font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
@@ -21,7 +21,7 @@
   padding: 0.6875rem var(--control-padding-x);
   border: 1px solid var(--color-stroke);
   border-radius: var(--radius-md);
-  background: var(--color-surface-2);
+  background: rgb(255 255 255 / 0.025);
   color: var(--color-text);
   font: inherit;
   line-height: 1.35;
@@ -36,17 +36,17 @@
 }
 
 .input-control:hover {
-  border-color: rgb(255 255 255 / 0.16);
+  border-color: var(--color-stroke-strong);
 }
 
 .input-control:focus-visible {
   outline: none;
   border-color: var(--color-brand-strong);
-  box-shadow: 0 0 0 2px var(--color-focus-ring);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .input-shell--invalid .input-control {
-  border-color: rgb(194 111 101 / 0.54);
+  border-color: rgb(239 129 117 / 0.56);
 }
 
 .input-support {
@@ -63,7 +63,7 @@
 
 .error-message {
   margin: 0;
-  color: #efb1a9;
+  color: #ffbeb7;
   font-size: 0.78rem;
   line-height: 1.45;
 }

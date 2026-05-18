@@ -1,6 +1,5 @@
 <section class="page-shell">
   <app-page-header
-    description="Use a câmera para ler um QR code com link do app, e-mail ou identificador de cobrança."
     kicker="Transferências"
     title="Scanner de QR"
   >
@@ -17,18 +16,15 @@
 
   <section class="transfer-scan-layout">
     <app-qr-scanner
-      description="A leitura reconhece automaticamente links do app, e-mail da conta ou identificador de cobrança."
+      description="Aponte para um QR de conta ou cobrança."
       title="Ler QR com a câmera"
       (closeRequested)="closeScanner()"
       (scanned)="handleScannedKey($event)"
     />
 
     <aside class="transfer-scan-summary surface-card">
-      <span class="section-kicker">Tentar outra opção</span>
-      <h2 class="section-title">Leitura isolada da entrada manual</h2>
-      <p class="section-copy">
-        Se a câmera não estiver disponível, volte para a tela de chave e continue pela digitação.
-      </p>
+      <span class="section-kicker">Manual</span>
+      <h2 class="section-title">Digite a chave</h2>
 
       <a class="button button--secondary button--block" routerLink="/transfer/key">
         Digitar chave manualmente

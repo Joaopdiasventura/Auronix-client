@@ -34,12 +34,10 @@
 }
 
 .profile-form__copy {
-  padding-bottom: var(--stack-sm);
-  border-bottom: 1px solid var(--color-stroke);
 }
 
 .profile-summary {
-  border-top: 2px solid rgb(184 154 102 / 0.32);
+  border-color: rgb(210 173 97 / 0.22);
 }
 
 .profile-summary__section + .profile-summary__section {
