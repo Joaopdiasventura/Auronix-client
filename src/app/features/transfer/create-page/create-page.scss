@@ -38,6 +38,46 @@
   gap: var(--stack-xs);
 }
 
+@media (min-width: 961px) {
+  .authorization-layout {
+    max-width: 54rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .authorization-form {
+    grid-template-columns: minmax(0, 1fr) minmax(17rem, 0.72fr);
+    align-items: start;
+    padding: 1.5rem;
+  }
+
+  .authorization-form__copy,
+  .authorization-form > .alert,
+  .authorization-form > app-input,
+  .authorization-form > button,
+  .authorization-form__field-skeleton,
+  .authorization-form__submit-skeleton {
+    grid-column: 1;
+  }
+
+  .authorization-form__snapshot {
+    grid-column: 2;
+    grid-row: 1 / span 5;
+    padding-left: 1rem;
+    border-left: 1px solid var(--color-stroke);
+  }
+
+  .authorization-form__snapshot.readonly-grid,
+  .authorization-form__snapshot .readonly-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .authorization-form__snapshot.readonly-grid > .readonly-field:nth-child(2),
+  .authorization-form__snapshot .readonly-grid > .readonly-field:nth-child(2) {
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-stroke);
+  }
+}
+
 @media (max-width: 960px) {
   .authorization-layout {
     grid-template-columns: 1fr;

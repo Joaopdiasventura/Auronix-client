@@ -123,6 +123,30 @@
   color: var(--color-danger);
 }
 
+@media (min-width: 961px) {
+  .history-overview {
+    grid-template-columns: repeat(4, minmax(10rem, 1fr));
+  }
+
+  .history-panel {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .history-toolbar {
+    align-items: end;
+    padding-bottom: 1rem;
+  }
+
+  .history-toolbar__actions {
+    gap: var(--panel-gap);
+  }
+
+  .history-row {
+    grid-template-columns: minmax(0, 1fr) minmax(12rem, auto) minmax(6rem, auto);
+    min-height: 4.5rem;
+  }
+}
+
 @media (max-width: 960px) {
   .history-overview {
     grid-template-columns: repeat(2, minmax(0, 1fr));

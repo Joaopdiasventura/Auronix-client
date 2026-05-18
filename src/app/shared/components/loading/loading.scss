@@ -31,6 +31,17 @@
   font-weight: 600;
 }
 
+@media (min-width: 961px) {
+  :host {
+    padding: 1.5rem;
+  }
+
+  .loading-card {
+    min-width: 22rem;
+    padding: 1.5rem;
+  }
+}
+
 @keyframes loading-spin {
   to {
     transform: rotate(360deg);

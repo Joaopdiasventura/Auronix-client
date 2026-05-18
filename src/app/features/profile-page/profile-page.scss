@@ -50,6 +50,43 @@
   max-width: 20rem;
 }
 
+@media (min-width: 961px) {
+  .profile-layout {
+    grid-template-columns: minmax(26rem, 0.9fr) minmax(26rem, 1.1fr);
+    align-items: start;
+  }
+
+  .profile-form,
+  .profile-summary,
+  .profile-qr-card {
+    padding: 1.5rem;
+  }
+
+  .profile-summary .readonly-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .profile-summary-stack {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-qr-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+
+  .profile-qr-card .readonly-grid {
+    grid-column: 1;
+    grid-template-columns: 1fr;
+  }
+
+  .profile-qr-card .button {
+    grid-column: 2;
+    width: auto;
+    white-space: nowrap;
+  }
+}
+
 @media (max-width: 960px) {
   .profile-layout {
     grid-template-columns: 1fr;

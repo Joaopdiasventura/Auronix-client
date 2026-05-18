@@ -58,3 +58,14 @@
 .metric-card--info .metric-card__value {
   color: var(--color-brand-strong);
 }
+
+@media (min-width: 961px) {
+  .metric-card {
+    min-height: 7.25rem;
+    padding: 1rem;
+  }
+
+  .metric-card__value {
+    font-size: 1.25rem;
+  }
+}

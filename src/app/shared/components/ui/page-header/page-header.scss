@@ -49,6 +49,17 @@
   flex-wrap: wrap;
 }
 
+@media (min-width: 961px) {
+  .page-header {
+    min-height: 4.25rem;
+    padding-bottom: 1rem;
+  }
+
+  .page-header__actions {
+    justify-content: flex-end;
+  }
+}
+
 @media (max-width: 760px) {
   .page-header {
     align-items: start;

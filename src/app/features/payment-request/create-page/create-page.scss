@@ -76,6 +76,41 @@
   line-height: 1.35;
 }
 
+@media (min-width: 961px) {
+  .request-layout {
+    grid-template-columns: minmax(0, 34rem);
+    justify-content: start;
+  }
+
+  .request-form,
+  .receipt-card,
+  .request-qr-card,
+  .share-card {
+    padding: 1.5rem;
+  }
+
+  .request-created {
+    grid-template-columns: minmax(24rem, 0.95fr) minmax(26rem, 1.05fr);
+    align-items: start;
+  }
+
+  .receipt-card {
+    min-height: 100%;
+  }
+
+  .request-created__side {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .share-card {
+    grid-column: 1 / -1;
+  }
+
+  .receipt-card__actions {
+    margin-top: auto;
+  }
+}
+
 @media (max-width: 960px) {
   .request-layout,
   .request-created {

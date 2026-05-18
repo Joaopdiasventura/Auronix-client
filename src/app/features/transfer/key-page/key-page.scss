@@ -21,6 +21,17 @@
   border-bottom: 1px solid var(--color-stroke);
 }
 
+@media (min-width: 961px) {
+  .transfer-key-layout {
+    max-width: 46rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .transfer-key-form {
+    padding: 1.5rem;
+  }
+}
+
 @media (max-width: 960px) {
   .transfer-key-layout {
     grid-template-columns: 1fr;

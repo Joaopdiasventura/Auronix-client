@@ -225,6 +225,42 @@
   background: rgb(255 255 255 / 0.02);
 }
 
+@media (min-width: 961px) {
+  .workspace-shell {
+    grid-template-columns: 16.75rem minmax(0, 1fr);
+  }
+
+  .workspace-sidebar {
+    padding: 1.125rem;
+  }
+
+  .workspace-frame {
+    min-height: 100vh;
+    padding: 1.5rem;
+  }
+
+  .workspace-content {
+    align-self: start;
+  }
+
+  .sidebar-summary {
+    gap: 0.875rem;
+    padding: 1rem;
+    border: 1px solid var(--color-stroke);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-2);
+  }
+
+  .sidebar-summary__balance {
+    margin-inline: -1rem;
+    padding: 0.875rem 1rem 0;
+  }
+
+  .nav-link {
+    padding: 0.25rem 0.5rem;
+  }
+}
+
 @media (max-width: 960px) {
   .workspace-shell {
     grid-template-columns: 1fr;

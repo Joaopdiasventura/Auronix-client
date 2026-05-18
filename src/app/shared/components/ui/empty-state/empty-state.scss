@@ -38,3 +38,17 @@
   flex-wrap: wrap;
   margin-top: var(--stack-xs);
 }
+
+@media (min-width: 961px) {
+  .empty-state {
+    gap: var(--stack-md);
+    padding: 1.25rem;
+    border: 1px solid var(--color-stroke);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-2);
+  }
+
+  .empty-state__description {
+    max-width: 34rem;
+  }
+}
