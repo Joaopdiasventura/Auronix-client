@@ -41,7 +41,7 @@
           "configurations": {
             "production": {
               "define": {
-                "API_URL": "'https://api.auronix.joaopdias.dev.br'"
+                "API_URL": "'https://api-auronix.joaopdias.dev.br'"
               },
               "budgets": [
                 {
